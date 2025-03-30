@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@db/*": [
+                "./db/*"
+            ],
+            "@models/*": [
+                "./db/models/*"
+            ],
+            "@routes": [
+                "./routes/index.js"
+            ],
+            "@routes/*": [
+                "./routes/*"
+            ],
+            "@controllers/*": [
+                "./controllers/*"
+            ],
+            "@middlewares/*": [
+                "./middlewares/*"
+            ],
+            "@config": [
+                "./config.js"
+            ],
+            "@utils/*": [
+                "./utils/*"
+            ]
+        }
+    }
+}

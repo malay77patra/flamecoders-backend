@@ -1,0 +1,37 @@
+{
+  "type": "commonjs",
+  "scripts": {
+    "build": "echo 'Building... This may take few years. Just kidding •ᴗ• all done! 🚀'",
+    "dev": "nodemon server.js",
+    "start": "node server.js --env=production",
+    "tenv": "node scripts/generate-example-env.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
+    "module-alias": "^2.2.3",
+    "mongoose": "^8.12.1",
+    "nodemailer": "^6.10.0",
+    "yup": "^1.6.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "supertest": "^7.1.0"
+  },
+  "_moduleAliases": {
+    "@db": "./db",
+    "@models": "./db/models",
+    "@routes": "./routes",
+    "@controllers": "./controllers",
+    "@middlewares": "./middlewares",
+    "@config": "./config.js",
+    "@utils": "./utils"
+  }
+}
