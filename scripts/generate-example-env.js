@@ -1,8 +1,9 @@
 const fs = require("fs");
 const path = require("path");
 
+const envTemplate = ".env.template"
 const envPath = path.join(__dirname, "..", ".env");
-const exampleEnvPath = path.join(__dirname, "..", ".env.example");
+const exampleEnvPath = path.join(__dirname, "..", envTemplate);
 
 // ANSI color codes
 const RESET = "\x1b[0m";
@@ -15,12 +16,12 @@ const DIM = "\x1b[2m";
 
 // ASCII Banner
 console.log(CYAN + BOLD + `
-  _____ _   ___     __  _____                    _       _          ____                           _
- | ____| \\ | \\ \\   / / |_   _|__ _ __ ___  _ __ | | __ _| |_ ___   / ___| ___ _ __   ___ _ __ __ _| |_ ___  _ __
- |  _| |  \\| |\\ \\ / /    | |/ _ \\ '_ \` _ \\| '_ \\| |/ _\` | __/ _ \\ | |  _ / _ \\ '_ \\ / _ \\ '__/ _\` | __/ _ \\| '__|
- | |___| |\\  | \\ V /     | |  __/ | | | | | |_) | | (_| | ||  __/ | |_| |  __/ | | |  __/ | | (_| | || (_) | |
- |_____|_| \\_|  \\_/      |_|\\___|_| |_| |_| .__/|_|\\__,_|\\__\\___|  \\____|\\___|_| |_|\\___|_|  \\__,_|\\__\\___/|_|
-                                          |_|
+______________________ ___________   ____ 
+\\__    ___/\\_   _____/ \\      \\   \\ /   / 
+  |    |    |    __)_  /   |   \\   Y   /  
+  |    |    |        \\/    |    \\     /   
+  |____|   /_______  /\\____|__  /\\___/    
+                   \\/         \\/          
 ` + RESET);
 
 // Watermark
@@ -32,7 +33,7 @@ if (!fs.existsSync(envPath)) {
     process.exit(1);
 }
 
-console.log(GREEN + "✅ .env file detected. Generating .env.example template..." + RESET);
+console.log(GREEN + `✅ .env file detected, Generating ${envTemplate} template...` + RESET);
 
 try {
     const envContent = fs.readFileSync(envPath, "utf-8");
@@ -48,8 +49,8 @@ try {
         .join("\n");
 
     fs.writeFileSync(exampleEnvPath, exampleEnvContent, "utf-8");
-    console.log(GREEN + BOLD + "🎉 .env.example has been successfully generated!" + RESET);
+    console.log(GREEN + BOLD + `🎉 ${envTemplate} has been successfully generated!` + RESET);
 } catch (error) {
-    console.error(RED + BOLD + "❌ Error generating .env.example:" + RESET, error.message);
+    console.error(RED + BOLD + `❌ Error generating ${envTemplate}:` + RESET, error.message);
     process.exit(1);
 }
