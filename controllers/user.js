@@ -128,12 +128,18 @@ const loginUser = async (req, res) => {
 
         await User.findByIdAndUpdate(user._id, { refreshToken }, { new: true });
 
+        const userData = {
+            name: user.name,
+            email: user.email,
+            accessToken: accessToken
+        }
+
         return res
             .status(200)
             .cookie("refreshToken", refreshToken, REFRESH_TOKEN_OPTIONS)
             .json({
                 success: {
-                    accessToken,
+                    user: userData,
                     message: "Logged in successfully."
                 }
             });

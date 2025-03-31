@@ -4,7 +4,7 @@
     "build": "echo 'Building... This may take few years. Just kidding •ᴗ• all done! 🚀'",
     "dev": "nodemon server.js",
     "start": "node server.js --env=production",
-    "tenv": "node scripts/generate-example-env.js",
+    "tenv": "node scripts/tenv.js",
     "test": "jest"
   },
   "dependencies": {
