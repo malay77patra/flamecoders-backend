@@ -16,9 +16,9 @@ const {
 
 const registerUser = async (req, res) => {
     try {
-        await registerSchema.validate(req.body, { abortEarly: false });
+        await registerSchema.validate(req.body.data, { abortEarly: false });
 
-        const { name, email, password } = req.body;
+        const { name, email, password } = req.body.data;
 
         const createMagicLink = () => {
             const magicToken = jwt.sign(
@@ -99,9 +99,9 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try {
-        await loginSchema.validate(req.body, { abortEarly: false });
+        await loginSchema.validate(req.body.data, { abortEarly: false });
 
-        const { email, password } = req.body;
+        const { email, password } = req.body.data;
 
         const user = await User.findOne({ email });
 
