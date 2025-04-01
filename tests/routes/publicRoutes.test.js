@@ -24,7 +24,7 @@ describe('Public Routes Tests', () => {
 
             expect(res.statusCode).toBe(200);
             expect(res.body).toEqual({
-                success: {
+                data: {
                     message: 'User registered successfully.'
                 }
             });

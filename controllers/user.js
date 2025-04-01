@@ -81,7 +81,7 @@ const registerUser = async (req, res) => {
         await sendMagicLink();
 
         return res.status(200).json({
-            success: { message: "Verification link has been sent to your email. Please check your inbox." }
+            data: { message: "Verification link has been sent to your email. Please check your inbox." }
         });
 
     } catch (error) {
@@ -138,7 +138,7 @@ const loginUser = async (req, res) => {
             .status(200)
             .cookie("refreshToken", refreshToken, REFRESH_TOKEN_OPTIONS)
             .json({
-                success: {
+                data: {
                     user: userData,
                     message: "Logged in successfully."
                 }
@@ -180,7 +180,7 @@ const logoutUser = async (req, res) => {
         res.clearCookie("refreshToken", REFRESH_TOKEN_OPTIONS_FOR_DELETION);
 
         return res.status(200).json({
-            success: {
+            data: {
                 message: "Logged out successfully."
             }
         });
@@ -236,7 +236,7 @@ const refreshUser = async (req, res) => {
         await User.findByIdAndUpdate(user._id, { accessToken }, { new: true });
 
         return res.status(200).json({
-            success: {
+            data: {
                 accessToken,
                 message: "Access token refreshed successfully."
             }
