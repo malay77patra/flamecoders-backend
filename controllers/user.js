@@ -16,9 +16,13 @@ const {
 
 const registerUser = async (req, res) => {
     try {
-        await registerSchema.validate(req.body.data, { abortEarly: false });
-
         const { name, email, password } = req.body.data;
+
+        await registerSchema.validate({
+            name,
+            email,
+            password
+        }, { abortEarly: false });
 
         const createMagicLink = () => {
             const magicToken = jwt.sign(
@@ -99,16 +103,19 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try {
-        await loginSchema.validate(req.body.data, { abortEarly: false });
-
         const { email, password } = req.body.data;
+
+        await loginSchema.validate({
+            email,
+            password
+        }, { abortEarly: false });
 
         const user = await User.findOne({ email });
 
         if (!user) {
             return res.status(404).json({
                 error: {
-                    message: "User not found, please enter correct email."
+                    message: "User not found. Please register first."
                 }
             });
         }
@@ -116,7 +123,7 @@ const loginUser = async (req, res) => {
         const isPasswordValid = await user.isPasswordCorrect(password);
 
         if (!isPasswordValid) {
-            return res.status(401).json({
+            return res.status(403).json({
                 error: {
                     message: "Please enter the correct password."
                 }
@@ -130,8 +137,7 @@ const loginUser = async (req, res) => {
 
         const userData = {
             name: user.name,
-            email: user.email,
-            accessToken: accessToken
+            email: user.email
         }
 
         return res
@@ -140,6 +146,7 @@ const loginUser = async (req, res) => {
             .json({
                 data: {
                     user: userData,
+                    accessToken: accessToken,
                     message: "Logged in successfully."
                 }
             });
