@@ -17,7 +17,7 @@ const verifyJWT = async (req, res, next) => {
         }
 
         const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        const user = await User.findById(decodedToken._id);
+        const user = await User.findOne({ email: decodedToken.email });
 
         if (!user) {
             return res.status(401).json({
@@ -30,6 +30,7 @@ const verifyJWT = async (req, res, next) => {
             });
         }
 
+        req.user = user;
         next();
 
     } catch (error) {
@@ -53,6 +54,11 @@ const verifyJWT = async (req, res, next) => {
             });
         }
 
+        console.error("Error occurred:", {
+            message: error.message,
+            stack: error.stack,
+            timestamp: new Date().toISOString()
+        });
         return res.status(500).json({
             status: 500,
             message: "An unexpected error occurred. Please try again later.",

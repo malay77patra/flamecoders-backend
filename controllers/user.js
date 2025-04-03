@@ -111,7 +111,12 @@ const registerUser = async (req, res) => {
             });
         }
 
-        console.error("Error in registerUser:", error);
+        console.error("Error occurred:", {
+            message: error.message,
+            stack: error.stack,
+            timestamp: new Date().toISOString()
+        });
+
         return res.status(500).json({
             status: 500,
             message: "An unexpected error occurred. Please try again later.",
@@ -149,7 +154,7 @@ const loginUser = async (req, res) => {
         const accessToken = user.generateAccessToken();
         const refreshToken = user.generateRefreshToken();
 
-        await User.findByIdAndUpdate(user._id, { refreshToken }, { new: true });
+        await User.findByIdAndUpdate(user.email, { refreshToken }, { new: true });
 
         return res.status(200).cookie("refreshToken", refreshToken, REFRESH_TOKEN_OPTIONS).json({
             status: 200,
@@ -158,6 +163,12 @@ const loginUser = async (req, res) => {
             accessToken
         });
     } catch (error) {
+        console.error("Error occurred:", {
+            message: error.message,
+            stack: error.stack,
+            timestamp: new Date().toISOString()
+        });
+
         return res.status(500).json({
             status: 500,
             message: "An unexpected error occurred. Please try again later.",
@@ -168,7 +179,7 @@ const loginUser = async (req, res) => {
 
 const logoutUser = async (req, res) => {
     try {
-        await User.findByIdAndUpdate(req.user._id, { $unset: { refreshToken: 1 } }, { new: true });
+        await User.findByIdAndUpdate(req.user.email, { $unset: { refreshToken: 1 } }, { new: true });
 
         const REFRESH_TOKEN_OPTIONS_FOR_DELETION = { ...REFRESH_TOKEN_OPTIONS };
         delete REFRESH_TOKEN_OPTIONS_FOR_DELETION.maxAge;
@@ -180,6 +191,11 @@ const logoutUser = async (req, res) => {
             message: "Logged out successfully.",
         });
     } catch (error) {
+        console.error("Error occurred:", {
+            message: error.message,
+            stack: error.stack,
+            timestamp: new Date().toISOString()
+        });
         return res.status(500).json({
             status: 500,
             message: "An unexpected error occurred. Please try again later.",
@@ -201,7 +217,7 @@ const refreshUser = async (req, res) => {
         }
 
         const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
-        const user = await User.findById(decodedToken?._id);
+        const user = await User.findOne({ email: decodedToken.email });
 
         if (!user || user.refreshToken !== incomingRefreshToken) {
             return res.status(401).json({
@@ -212,7 +228,7 @@ const refreshUser = async (req, res) => {
         }
 
         const accessToken = user.generateAccessToken();
-        await User.findByIdAndUpdate(user._id, { accessToken }, { new: true });
+        await User.findByIdAndUpdate(user.email, { accessToken }, { new: true });
 
         return res.status(200).json({
             status: 200,
@@ -221,6 +237,12 @@ const refreshUser = async (req, res) => {
         });
 
     } catch (error) {
+        console.error("Error occurred:", {
+            message: error.message,
+            stack: error.stack,
+            timestamp: new Date().toISOString()
+        });
+
         return res.status(500).json({
             status: 500,
             message: "An unexpected error occurred. Please try again later.",

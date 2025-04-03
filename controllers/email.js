@@ -43,6 +43,12 @@ const verifyMagicLink = async (req, res) => {
         });
 
     } catch (error) {
+        console.error("Error occurred:", {
+            message: error.message,
+            stack: error.stack,
+            timestamp: new Date().toISOString()
+        });
+        
         let status = 500;
         let message = "An unexpected error occurred. Please try again later.";
         let errorCode = "SERVER_ERROR";
