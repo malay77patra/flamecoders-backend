@@ -13,9 +13,6 @@ const MAX_MAGIC_LINK_AGE = 1000 * 60 * 15; // 15 mins
 const SMALL_COOL_DOWN = 1000 * 60 * 2; // 2 mins
 const BIG_COOL_DOWN = 1000 * 60 * 30; // 30 mins
 
-// End points
-// Must start wiht a slash '/'
-const MAGIC_LINK_VERIFICATION_ENDPOINT = "/api/magic/verify";
 
 // Definations
 const MAX_REGISTRATION_TRIES = 3;
@@ -38,6 +35,5 @@ module.exports = {
     REFRESH_TOKEN_OPTIONS,
     SMALL_COOL_DOWN,
     BIG_COOL_DOWN,
-    MAGIC_LINK_VERIFICATION_ENDPOINT,
     MAX_REGISTRATION_TRIES,
 };

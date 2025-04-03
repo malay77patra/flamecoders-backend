@@ -9,20 +9,16 @@ const {
     SMALL_COOL_DOWN,
     BIG_COOL_DOWN,
     MAX_MAGIC_LINK_AGE,
-    MAGIC_LINK_VERIFICATION_ENDPOINT,
     MAX_REGISTRATION_TRIES,
     REFRESH_TOKEN_OPTIONS
 } = require("@config");
+const { EMAIL } = require("@utils/template");
 
 const registerUser = async (req, res) => {
     try {
         const { name, email, password } = req.body.data;
 
-        await registerSchema.validate({
-            name,
-            email,
-            password
-        }, { abortEarly: false });
+        await registerSchema.validate({ name, email, password }, { abortEarly: false });
 
         const createMagicLink = () => {
             const magicToken = jwt.sign(
@@ -31,14 +27,14 @@ const registerUser = async (req, res) => {
                 { expiresIn: getJwtFormat(MAX_MAGIC_LINK_AGE) }
             );
 
-            return `${req.protocol}://${req.get("host")}${MAGIC_LINK_VERIFICATION_ENDPOINT}?token=${magicToken}`;
+            return `${req.protocol}://${req.get("host")}/verify?token=${magicToken}`;
         };
 
         const sendMagicLink = async () => {
             const magicLink = createMagicLink();
             const subject = "Magic Link for Registration";
-            const text = `Click the link to register: ${magicLink}`;
-            const html = `<p>Click the link to register:</p><a href="${magicLink}">Register</a>`;
+            const text = EMAIL.verify.text.replace("{{link}}", magicLink);
+            const html = EMAIL.verify.html.replace("{{link}}", magicLink);
 
             await sendEmail(email, subject, text, html);
         };
@@ -53,11 +49,17 @@ const registerUser = async (req, res) => {
             if (pending) {
                 if (pending.attempts >= MAX_REGISTRATION_TRIES) {
                     if (pending.attemptAt > bigCoolDown) {
-                        return { status: 429, message: "Too many attempts. Try again later." };
+                        return {
+                            status: 429,
+                            message: "Too many attempts. Try again later."
+                        };
                     }
                     pending.attempts = 1;
                 } else if (pending.attemptAt > smallCoolDown) {
-                    return { status: 429, message: "Please wait before trying again." };
+                    return {
+                        status: 429,
+                        message: "Please wait before trying again."
+                    };
                 } else {
                     pending.attempts += 1;
                 }
@@ -68,55 +70,69 @@ const registerUser = async (req, res) => {
                 await Pending.create({ email, attempts: 1, attemptAt: now });
             }
 
-            return { status: 200 };
+            return {
+                status: 200
+            };
         };
 
         const existingUser = await User.findOne({ email }).lean();
         if (existingUser) {
-            return res.status(400).json({ error: { message: "This email is already in use." } });
+            return res.status(400).json({
+                status: 400,
+                message: "This email is already in use.",
+                error: { code: "EMAIL_TAKEN", details: "The provided email is already registered." }
+            });
         }
 
         const pendingResult = await handlePendingRegistration();
 
         if (pendingResult.status !== 200) {
-            return res.status(pendingResult.status).json({ error: { message: pendingResult.message } });
+            return res.status(pendingResult.status).json({
+                status: pendingResult.status,
+                message: pendingResult.message,
+                error: { code: "RATE_LIMIT", details: "Too many registration attempts." }
+            });
         }
 
         await sendMagicLink();
 
         return res.status(200).json({
-            data: { message: "Verification link has been sent to your email. Please check your inbox." }
+            status: 200,
+            message: "Verification link has been sent to your email. Please check your inbox.",
+            error: null
         });
 
     } catch (error) {
         if (error.name === "ValidationError") {
-            return res.status(400).json({ error: { message: error.inner[0]?.message || "Validation failed." } });
+            return res.status(400).json({
+                status: 400,
+                message: error.inner[0]?.message || "Validation failed.",
+                error: { code: "VALIDATION_ERROR", details: "Invalid registration input." }
+            });
         }
+
         console.error("Error in registerUser:", error);
         return res.status(500).json({
-            error: { message: "An unexpected error occurred. Please try again later." }
+            status: 500,
+            message: "An unexpected error occurred. Please try again later.",
+            error: { code: "SERVER_ERROR", details: "Internal server error." }
         });
     }
 };
-
-
 
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body.data;
 
-        await loginSchema.validate({
-            email,
-            password
-        }, { abortEarly: false });
+        await loginSchema.validate({ email, password }, { abortEarly: false });
 
         const user = await User.findOne({ email });
 
         if (!user) {
             return res.status(404).json({
-                error: {
-                    message: "User not found. Please register first."
-                }
+                status: 404,
+                message: "User not found. Please register first.",
+                error: { code: "USER_NOT_FOUND", details: "No user registered with this email." }
             });
         }
 
@@ -124,9 +140,9 @@ const loginUser = async (req, res) => {
 
         if (!isPasswordValid) {
             return res.status(403).json({
-                error: {
-                    message: "Please enter the correct password."
-                }
+                status: 403,
+                message: "Incorrect password.",
+                error: { code: "INVALID_CREDENTIALS", details: "The entered password is incorrect." }
             });
         }
 
@@ -135,67 +151,41 @@ const loginUser = async (req, res) => {
 
         await User.findByIdAndUpdate(user._id, { refreshToken }, { new: true });
 
-        const userData = {
-            name: user.name,
-            email: user.email
-        }
-
-        return res
-            .status(200)
-            .cookie("refreshToken", refreshToken, REFRESH_TOKEN_OPTIONS)
-            .json({
-                data: {
-                    user: userData,
-                    accessToken: accessToken,
-                    message: "Logged in successfully."
-                }
-            });
-    } catch (error) {
-        if (error.name === "ValidationError") {
-            return res.status(400).json({
-                error: {
-                    message: error.inner[0]?.message || "Validation failed."
-                }
-            });
-        }
-
-        return res.status(500).json({
-            error: {
-                message: "An unexpected error occurred. Please try again later."
+        return res.status(200).cookie("refreshToken", refreshToken, REFRESH_TOKEN_OPTIONS).json({
+            status: 200,
+            message: "Logged in successfully.",
+            data: {
+                user: { name: user.name, email: user.email },
+                accessToken
             }
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "An unexpected error occurred. Please try again later.",
+            error: { code: "SERVER_ERROR", details: "Internal server error." }
         });
     }
 };
 
 const logoutUser = async (req, res) => {
     try {
+        await User.findByIdAndUpdate(req.user._id, { $unset: { refreshToken: 1 } }, { new: true });
 
-        await User.findByIdAndUpdate(
-            req.user._id,
-            { $unset: { refreshToken: 1 } },
-            { new: true }
-        );
-
-        // Remove the maxAge since its depreacted from clearCookie.
-        //
-        // express deprecated res.clearCookie: Passing "options.maxAge" is deprecated.
-        // In v5.0.0 of Express, this option will be ignored, as res.clearCookie will automatically set cookies to expire immediately.
-        //
         const REFRESH_TOKEN_OPTIONS_FOR_DELETION = { ...REFRESH_TOKEN_OPTIONS };
         delete REFRESH_TOKEN_OPTIONS_FOR_DELETION.maxAge;
 
         res.clearCookie("refreshToken", REFRESH_TOKEN_OPTIONS_FOR_DELETION);
 
         return res.status(200).json({
-            data: {
-                message: "Logged out successfully."
-            }
+            status: 200,
+            message: "Logged out successfully.",
         });
     } catch (error) {
         return res.status(500).json({
-            error: {
-                message: "An unexpected error occurred. Please try again later."
-            }
+            status: 500,
+            message: "An unexpected error occurred. Please try again later.",
+            error: { code: "SERVER_ERROR", details: "Internal server error." }
         });
     }
 };
@@ -206,36 +196,20 @@ const refreshUser = async (req, res) => {
 
         if (!incomingRefreshToken) {
             return res.status(401).json({
-                error: {
-                    message: "No refresh token provided."
-                }
+                status: 401,
+                message: "No refresh token provided.",
+                error: { code: "NO_TOKEN", details: "Missing refresh token in request." }
             });
         }
 
         const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
         const user = await User.findById(decodedToken?._id);
 
-        if (!user) {
+        if (!user || user.refreshToken !== incomingRefreshToken) {
             return res.status(401).json({
-                error: {
-                    message: "User not found."
-                }
-            });
-        }
-
-        if (!user.refreshToken) {
-            return res.status(401).json({
-                error: {
-                    message: "User is not authenticated."
-                }
-            });
-        }
-
-        if (user.refreshToken !== incomingRefreshToken) {
-            return res.status(401).json({
-                error: {
-                    message: "Invalid refresh token."
-                }
+                status: 401,
+                message: "Invalid refresh token.",
+                error: { code: "INVALID_REFRESH_TOKEN", details: "Refresh token does not match records." }
             });
         }
 
@@ -243,26 +217,16 @@ const refreshUser = async (req, res) => {
         await User.findByIdAndUpdate(user._id, { accessToken }, { new: true });
 
         return res.status(200).json({
-            data: {
-                accessToken,
-                message: "Access token refreshed successfully."
-            }
+            status: 200,
+            message: "Access token refreshed successfully.",
+            data: { accessToken }
         });
 
     } catch (error) {
-
-        if (error.name === "TokenExpiredError" || error.name === "JsonWebTokenError") {
-            return res.status(401).json({
-                error: {
-                    message: "Invalid or expired refresh token."
-                }
-            });
-        }
-
         return res.status(500).json({
-            error: {
-                message: "An unexpected error occurred. Please try again later."
-            }
+            status: 500,
+            message: "An unexpected error occurred. Please try again later.",
+            error: { code: "SERVER_ERROR", details: "Internal server error." }
         });
     }
 };

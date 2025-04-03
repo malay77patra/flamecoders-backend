@@ -7,8 +7,11 @@ const verifyJWT = async (req, res, next) => {
 
         if (!token) {
             return res.status(401).json({
+                status: 401,
+                message: "Unauthorized request blocked.",
                 error: {
-                    message: "Unauthorized request blocked."
+                    code: "UNAUTHORIZED",
+                    details: "Missing authentication token."
                 }
             });
         }
@@ -18,8 +21,11 @@ const verifyJWT = async (req, res, next) => {
 
         if (!user) {
             return res.status(401).json({
+                status: 401,
+                message: "User not found.",
                 error: {
-                    message: "User not found."
+                    code: "USER_NOT_FOUND",
+                    details: "The token does not match any registered user."
                 }
             });
         }
@@ -29,21 +35,30 @@ const verifyJWT = async (req, res, next) => {
     } catch (error) {
         if (error.name === "TokenExpiredError") {
             return res.status(401).json({
+                status: 401,
+                message: "Session expired, please login.",
                 error: {
-                    message: "Session expired, please login."
+                    code: "TOKEN_EXPIRED",
+                    details: "Your authentication token has expired."
                 }
             });
         } else if (error.name === "JsonWebTokenError" || error.name === "NotBeforeError") {
             return res.status(401).json({
+                status: 401,
+                message: "Unauthorized request blocked.",
                 error: {
-                    message: "Unauthorized request blocked."
+                    code: "INVALID_TOKEN",
+                    details: "The provided token is invalid or not active yet."
                 }
             });
         }
 
         return res.status(500).json({
+            status: 500,
+            message: "An unexpected error occurred. Please try again later.",
             error: {
-                message: "An unexpected error occurred. Please try again later."
+                code: "SERVER_ERROR",
+                details: "An internal server error occurred while verifying the token."
             }
         });
     }
