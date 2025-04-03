@@ -126,6 +126,9 @@ const registerUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
+
+    // return res.status(401).send();
+
     try {
         const { email, password } = req.body;
 
@@ -154,7 +157,7 @@ const loginUser = async (req, res) => {
         const accessToken = user.generateAccessToken();
         const refreshToken = user.generateRefreshToken();
 
-        await User.findByIdAndUpdate(user.email, { refreshToken }, { new: true });
+        await User.findOneAndUpdate({ email: user.email }, { refreshToken }, { new: true });
 
         return res.status(200).cookie("refreshToken", refreshToken, REFRESH_TOKEN_OPTIONS).json({
             status: 200,
@@ -179,7 +182,7 @@ const loginUser = async (req, res) => {
 
 const logoutUser = async (req, res) => {
     try {
-        await User.findByIdAndUpdate(req.user.email, { $unset: { refreshToken: 1 } }, { new: true });
+        await User.findOneAndUpdate({ email: req.user.email }, { $unset: { refreshToken: 1 } }, { new: true });
 
         const REFRESH_TOKEN_OPTIONS_FOR_DELETION = { ...REFRESH_TOKEN_OPTIONS };
         delete REFRESH_TOKEN_OPTIONS_FOR_DELETION.maxAge;
@@ -228,7 +231,7 @@ const refreshUser = async (req, res) => {
         }
 
         const accessToken = user.generateAccessToken();
-        await User.findByIdAndUpdate(user.email, { accessToken }, { new: true });
+        await User.findOneAndUpdate({ email: user.email }, { accessToken }, { new: true });
 
         return res.status(200).json({
             status: 200,
