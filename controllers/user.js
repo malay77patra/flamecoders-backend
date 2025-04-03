@@ -16,7 +16,7 @@ const { EMAIL } = require("@utils/template");
 
 const registerUser = async (req, res) => {
     try {
-        const { name, email, password } = req.body.data;
+        const { name, email, password } = req.body;
 
         await registerSchema.validate({ name, email, password }, { abortEarly: false });
 
@@ -122,7 +122,7 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try {
-        const { email, password } = req.body.data;
+        const { email, password } = req.body;
 
         await loginSchema.validate({ email, password }, { abortEarly: false });
 
@@ -154,10 +154,8 @@ const loginUser = async (req, res) => {
         return res.status(200).cookie("refreshToken", refreshToken, REFRESH_TOKEN_OPTIONS).json({
             status: 200,
             message: "Logged in successfully.",
-            data: {
-                user: { name: user.name, email: user.email },
-                accessToken
-            }
+            user: { name: user.name, email: user.email },
+            accessToken
         });
     } catch (error) {
         return res.status(500).json({
@@ -219,7 +217,7 @@ const refreshUser = async (req, res) => {
         return res.status(200).json({
             status: 200,
             message: "Access token refreshed successfully.",
-            data: { accessToken }
+            accessToken
         });
 
     } catch (error) {
