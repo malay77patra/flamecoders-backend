@@ -1,6 +1,7 @@
 const User = require("@models/user");
 const Pending = require("@models/pending");
-
+const dotenv = require("dotenv");
+dotenv.config();
 const jwt = require("jsonwebtoken");
 const { getJwtFormat } = require("@utils");
 const { sendEmail } = require("@utils/smtp");
@@ -27,7 +28,7 @@ const registerUser = async (req, res) => {
                 { expiresIn: getJwtFormat(MAX_MAGIC_LINK_AGE) }
             );
 
-            return `${req.protocol}://${req.get("host")}/verify?token=${magicToken}`;
+            return `${process.env.CLIENT_URL}/verify?token=${magicToken}`;
         };
 
         const sendMagicLink = async () => {
