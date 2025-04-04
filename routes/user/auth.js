@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const { registerUser, loginUser, logoutUser, refreshUser } = require("@controllers/user");
-const { verifyJWT } = require("@middlewares/auth");
+const { verifyJWTUser } = require("@middlewares/auth.user");
 
 const router = Router();
 
@@ -11,7 +11,7 @@ router.route("/login").post(loginUser);
 router.post("/refresh", refreshUser);
 
 // ---------------------- Protected Routes ----------------------
-router.use(verifyJWT);
+router.use(verifyJWTUser);
 router.post("/logout", logoutUser);
 
 

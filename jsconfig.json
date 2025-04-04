@@ -2,6 +2,9 @@
     "compilerOptions": {
         "baseUrl": ".",
         "paths": {
+            "@admin/*": [
+                "./admin/*"
+            ],
             "@db/*": [
                 "./db/*"
             ],

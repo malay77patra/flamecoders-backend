@@ -1,14 +1,12 @@
+require("dotenv").config();
 require('module-alias/register');
 const express = require("express");
 const { urlencoded } = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const dotenv = require("dotenv");
 const connectDB = require("@db/connect");
+const setupSuperAdmin = require("@admin/setup");
 const routes = require("@routes");
-
-// Load environment variables
-dotenv.config();
 
 // Definations
 const isProduction = process.argv.includes('--env=production');
@@ -32,8 +30,10 @@ app.get('/', (req, res) => {
 });
 
 
+
 // Connecting to MongoDB, then start the server
 connectDB()
+    .then(() => setupSuperAdmin())
     .then(() => {
         app.listen(PORT, () => {
             if (isProduction) {
@@ -45,5 +45,6 @@ connectDB()
     })
     .catch((error) => {
         console.log(error);
-        console.log("MongoDB connection failed");
+        console.log("❌ Error starting the server");
+        process.exit(1);
     });

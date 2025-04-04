@@ -1,8 +1,7 @@
+require("dotenv").config();
 const nodemailer = require('nodemailer');
-const dotenv = require("dotenv");
 const { BRANDING } = require("@config");
 
-dotenv.config();
 
 const transporter = nodemailer.createTransport({
     host: process.env.MAILER_HOST,

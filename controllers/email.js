@@ -1,9 +1,8 @@
-const dotenv = require("dotenv");
+require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const Pending = require("@models/pending");
 const User = require("@models/user");
 
-dotenv.config();
 
 const verifyMagicLink = async (req, res) => {
     const { token } = req.body;

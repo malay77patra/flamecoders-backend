@@ -1,7 +1,9 @@
 const jwt = require("jsonwebtoken");
 const User = require("@models/user");
+const Admin = require("@models/admin");
 
-const verifyJWT = async (req, res, next) => {
+
+const verifyAdminJWT = async (req, res, next) => {
     try {
         const token = req.header("Authorization")?.replace("Bearer ", "");
 
@@ -30,6 +32,20 @@ const verifyJWT = async (req, res, next) => {
             });
         }
 
+        const admin = await Admin.findOne({ email: user.email });
+
+        if (!admin) {
+            return res.status(401).json({
+                status: 401,
+                message: "Not an admin.",
+                error: {
+                    code: "NOT_AN_ADMIN",
+                    details: "User is not an admin."
+                }
+            });
+        }
+
+        user.isAdmin = true;
         req.user = user;
         next();
 
@@ -70,4 +86,4 @@ const verifyJWT = async (req, res, next) => {
     }
 };
 
-module.exports = { verifyJWT };
+module.exports = { verifyUserJWT };

@@ -1,7 +1,6 @@
+require("dotenv").config();
 const User = require("@models/user");
 const Pending = require("@models/pending");
-const dotenv = require("dotenv");
-dotenv.config();
 const jwt = require("jsonwebtoken");
 const { getJwtFormat } = require("@utils");
 const { sendEmail } = require("@utils/smtp");
