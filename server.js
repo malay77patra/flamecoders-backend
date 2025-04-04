@@ -26,7 +26,9 @@ app.use(routes);
 
 // Test route
 app.get('/', (req, res) => {
-    res.send("Server Online!");
+    res.status(401).json({
+        test: "ok"
+    });
 });
 
 
