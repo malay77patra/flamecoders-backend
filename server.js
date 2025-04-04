@@ -26,7 +26,7 @@ app.use(routes);
 
 // Test route
 app.get('/', (req, res) => {
-    res.status(401).json({
+    res.json({
         test: "ok"
     });
 });
