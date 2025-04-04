@@ -126,9 +126,6 @@ const registerUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
-
-    // return res.status(401).send();
-
     try {
         const { email, password } = req.body;
 
