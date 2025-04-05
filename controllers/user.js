@@ -207,6 +207,7 @@ const logoutUser = async (req, res) => {
 const refreshUser = async (req, res) => {
     try {
         const incomingRefreshToken = req.cookies.refreshToken;
+        console.log("ref:", incomingRefreshToken)
 
         if (!incomingRefreshToken) {
             return res.status(401).json({
@@ -217,6 +218,7 @@ const refreshUser = async (req, res) => {
         }
 
         const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+        console.log("decoded:", decodedToken)
         const user = await User.findOne({ email: decodedToken.email });
 
         if (!user || user.refreshToken !== incomingRefreshToken) {
