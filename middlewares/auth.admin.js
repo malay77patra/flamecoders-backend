@@ -3,35 +3,11 @@ const User = require("@models/user");
 const Admin = require("@models/admin");
 
 
-const verifyAdminJWT = async (req, res, next) => {
+const verifyJWTAdmin = async (req, res, next) => {
     try {
-        const token = req.header("Authorization")?.replace("Bearer ", "");
+        // You are expected to use the verifyUserJWT() middleware before using verifyJWTAdmin() always.
 
-        if (!token) {
-            return res.status(401).json({
-                status: 401,
-                message: "Unauthorized request blocked.",
-                error: {
-                    code: "UNAUTHORIZED",
-                    details: "Missing authentication token."
-                }
-            });
-        }
-
-        const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        const user = await User.findOne({ email: decodedToken.email });
-
-        if (!user) {
-            return res.status(401).json({
-                status: 401,
-                message: "User not found.",
-                error: {
-                    code: "USER_NOT_FOUND",
-                    details: "The token does not match any registered user."
-                }
-            });
-        }
-
+        const user = req.user;
         const admin = await Admin.findOne({ email: user.email });
 
         if (!admin) {
@@ -50,26 +26,6 @@ const verifyAdminJWT = async (req, res, next) => {
         next();
 
     } catch (error) {
-        if (error.name === "TokenExpiredError") {
-            return res.status(401).json({
-                status: 401,
-                message: "Session expired, please login.",
-                error: {
-                    code: "TOKEN_EXPIRED",
-                    details: "Your authentication token has expired."
-                }
-            });
-        } else if (error.name === "JsonWebTokenError" || error.name === "NotBeforeError") {
-            return res.status(401).json({
-                status: 401,
-                message: "Unauthorized request blocked.",
-                error: {
-                    code: "INVALID_TOKEN",
-                    details: "The provided token is invalid or not active yet."
-                }
-            });
-        }
-
         console.error("Error occurred:", {
             message: error.message,
             stack: error.stack,
@@ -86,4 +42,4 @@ const verifyAdminJWT = async (req, res, next) => {
     }
 };
 
-module.exports = { verifyUserJWT };
+module.exports = { verifyJWTAdmin };

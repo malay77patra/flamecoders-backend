@@ -1,7 +1,7 @@
 const Admin = require("@db/models/admin");
 const User = require("@db/models/user");
 
-const pingAdmin = (req, res) => {
+const loginAdmin = (req, res) => {
     // Checking for admin credentials are expected to be handled
     // by middlewares
 
@@ -11,3 +11,5 @@ const pingAdmin = (req, res) => {
         isAdmin: true
     });
 }
+
+module.exports = { loginAdmin };
