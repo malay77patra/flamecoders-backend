@@ -9,8 +9,7 @@ const router = Router();
 
 
 // ---------------------- Protected Routes ----------------------
-router.use(verifyJWTUser);
-router.use(verifyJWTAdmin);
+router.use(verifyJWTUser, verifyJWTAdmin);
 router.route("/login").post(loginAdmin);
 
 

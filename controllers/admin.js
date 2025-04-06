@@ -1,5 +1,4 @@
-const Admin = require("@db/models/admin");
-const User = require("@db/models/user");
+
 
 const loginAdmin = (req, res) => {
     // Checking for admin credentials are expected to be handled

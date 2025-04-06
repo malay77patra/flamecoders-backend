@@ -247,14 +247,13 @@ const logoutUser = async (req, res) => {
 const refreshUser = async (req, res) => {
   try {
     const incomingRefreshToken = req.cookies.refreshToken;
-    console.log("ref:", incomingRefreshToken);
 
     if (!incomingRefreshToken) {
       return res.status(401).json({
         status: 401,
         message: "No refresh token provided.",
         error: {
-          code: "NO_TOKEN",
+          code: "NO_REF_TOKEN",
           details: "Missing refresh token in request.",
         },
       });
@@ -264,7 +263,6 @@ const refreshUser = async (req, res) => {
       incomingRefreshToken,
       process.env.REFRESH_TOKEN_SECRET
     );
-    console.log("decoded:", decodedToken);
     const user = await User.findOne({ email: decodedToken.email });
 
     if (!user || user.refreshToken !== incomingRefreshToken) {

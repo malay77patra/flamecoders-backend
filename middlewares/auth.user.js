@@ -10,7 +10,7 @@ const verifyJWTUser = async (req, res, next) => {
                 status: 401,
                 message: "Unauthorized request blocked.",
                 error: {
-                    code: "UNAUTHORIZED",
+                    code: "NO_ACC_TOKEN",
                     details: "Missing authentication token."
                 }
             });
@@ -24,7 +24,7 @@ const verifyJWTUser = async (req, res, next) => {
                 status: 401,
                 message: "User not found.",
                 error: {
-                    code: "USER_NOT_FOUND",
+                    code: "ACC_USER_NOT_FOUND",
                     details: "The token does not match any registered user."
                 }
             });
@@ -39,7 +39,7 @@ const verifyJWTUser = async (req, res, next) => {
                 status: 401,
                 message: "Session expired, please login.",
                 error: {
-                    code: "TOKEN_EXPIRED",
+                    code: "ACC_TOKEN_EXPIRED",
                     details: "Your authentication token has expired."
                 }
             });
@@ -48,7 +48,7 @@ const verifyJWTUser = async (req, res, next) => {
                 status: 401,
                 message: "Unauthorized request blocked.",
                 error: {
-                    code: "INVALID_TOKEN",
+                    code: "INVALID_ACC_TOKEN",
                     details: "The provided token is invalid or not active yet."
                 }
             });
