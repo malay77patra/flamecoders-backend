@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { MAX_ACCESS_TOKEN_AGE, MAX_REFRESH_TOKEN_AGE } = require("@config");
-const { getJwtFormat } = require("@utils");
+const { getJwtFormat } = require("@utils/helpers");
 
 
 const userSchema = new Schema(

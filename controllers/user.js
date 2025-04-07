@@ -2,7 +2,7 @@ require("dotenv").config();
 const User = require("@models/user");
 const Pending = require("@models/pending");
 const jwt = require("jsonwebtoken");
-const { getJwtFormat } = require("@utils");
+const { getJwtFormat } = require("@utils/helpers");
 const { sendEmail } = require("@utils/smtp");
 const { loginSchema, registerSchema } = require("@utils/validations");
 const {
@@ -14,6 +14,10 @@ const {
 } = require("@config");
 const { EMAIL } = require("@utils/template");
 
+
+
+//  Register user //
+
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -23,18 +27,14 @@ const registerUser = async (req, res) => {
       { abortEarly: false }
     );
 
-    const createMagicLink = () => {
+    const sendMagicLink = async () => {
       const magicToken = jwt.sign(
         { name, email, password },
         process.env.MAGIC_SECRET,
         { expiresIn: getJwtFormat(MAX_MAGIC_LINK_AGE) }
       );
 
-      return `${process.env.CLIENT_URL}/verify?token=${magicToken}`;
-    };
-
-    const sendMagicLink = async () => {
-      const magicLink = createMagicLink();
+      const magicLink = `${process.env.CLIENT_URL}/verify?token=${magicToken}`;
       const subject = "Magic Link for Registration";
       const text = EMAIL.verify.text.replace("{{link}}", magicLink);
       const html = EMAIL.verify.html.replace("{{link}}", magicLink);
@@ -42,100 +42,65 @@ const registerUser = async (req, res) => {
       await sendEmail(email, subject, text, html);
     };
 
-    const handlePendingRegistration = async () => {
-      const now = new Date();
-      const bigCoolDown = new Date(now.getTime() - BIG_COOL_DOWN);
-      const smallCoolDown = new Date(now.getTime() - SMALL_COOL_DOWN);
-
-      const pending = await Pending.findOne({ email });
-
-      if (pending) {
-        if (pending.attempts >= MAX_REGISTRATION_TRIES) {
-          if (pending.attemptAt > bigCoolDown) {
-            return {
-              status: 429,
-              message: "Too many attempts. Try again later.",
-            };
-          }
-          pending.attempts = 1;
-        } else if (pending.attemptAt > smallCoolDown) {
-          return {
-            status: 429,
-            message: "Please wait before trying again.",
-          };
-        } else {
-          pending.attempts += 1;
-        }
-
-        pending.attemptAt = now;
-        await pending.save();
-      } else {
-        await Pending.create({ email, attempts: 1, attemptAt: now });
-      }
-
-      return {
-        status: 200,
-      };
-    };
-
-    const existingUser = await User.findOne({ email }).lean();
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
-        status: 400,
         message: "This email is already in use.",
-        error: {
-          code: "EMAIL_TAKEN",
-          details: "The provided email is already registered.",
-        },
+        details: "The provided email is already registered."
       });
     }
 
-    const pendingResult = await handlePendingRegistration();
+    const now = new Date();
+    const bigCoolDown = new Date(now.getTime() - BIG_COOL_DOWN);
+    const smallCoolDown = new Date(now.getTime() - SMALL_COOL_DOWN);
 
-    if (pendingResult.status !== 200) {
-      return res.status(pendingResult.status).json({
-        status: pendingResult.status,
-        message: pendingResult.message,
-        error: {
-          code: "RATE_LIMIT",
-          details: "Too many registration attempts.",
-        },
-      });
+    const pending = await Pending.findOne({ email });
+
+    if (pending) {
+      if (pending.attempts >= MAX_REGISTRATION_TRIES) {
+        if (pending.attemptAt > bigCoolDown) {
+          return res.status(429).json({
+            message: "Too many attempts. Try again later.",
+            details: "wait 30mins before trying again"
+          });
+        }
+        pending.attempts = 1;
+      } else if (pending.attemptAt > smallCoolDown) {
+        return res.status(429).json({
+          message: "Please wait before trying again.",
+          details: "wait 2 mins before trying again",
+        });
+      } else {
+        pending.attempts += 1;
+      }
+
+      pending.attemptAt = now;
+      await pending.save();
+    } else {
+      await Pending.create({ email, attempts: 1, attemptAt: now });
     }
 
     await sendMagicLink();
 
     return res.status(200).json({
-      status: 200,
-      message:
-        "Verification link has been sent to your email. Please check your inbox.",
-      error: null,
+      message: "Verification link has been sent to your email. Please check your inbox."
     });
   } catch (error) {
+
+    // Validation error
     if (error.name === "ValidationError") {
       return res.status(400).json({
-        status: 400,
-        message: error.inner[0]?.message || "Validation failed.",
-        error: {
-          code: "VALIDATION_ERROR",
-          details: "Invalid registration input.",
-        },
+        message: error.inner[0]?.message || "Input registration data is invalid.",
+        details: "provided registration data is invalid"
       });
     }
 
-    console.error("Error occurred:", {
-      message: error.message,
-      stack: error.stack,
-      timestamp: new Date().toISOString(),
-    });
-
-    return res.status(500).json({
-      status: 500,
-      message: "An unexpected error occurred. Please try again later.",
-      error: { code: "SERVER_ERROR", details: "Internal server error." },
-    });
+    throw error;
   }
 };
+
+
+// Login User //
 
 const loginUser = async (req, res) => {
   try {
@@ -147,12 +112,8 @@ const loginUser = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({
-        status: 404,
         message: "User not found. Please register first.",
-        error: {
-          code: "USER_NOT_FOUND",
-          details: "No user registered with this email.",
-        },
+        details: "no user registered with this email",
       });
     }
 
@@ -160,12 +121,8 @@ const loginUser = async (req, res) => {
 
     if (!isPasswordValid) {
       return res.status(403).json({
-        status: 403,
         message: "Incorrect password.",
-        error: {
-          code: "INVALID_CREDENTIALS",
-          details: "The entered password is incorrect.",
-        },
+        details: "entered password is incorrect",
       });
     }
 
@@ -182,66 +139,47 @@ const loginUser = async (req, res) => {
       .status(200)
       .cookie("refreshToken", refreshToken, REFRESH_TOKEN_OPTIONS)
       .json({
-        status: 200,
-        message: "Logged in successfully.",
+        message: "Logged in.",
         user: { name: user.name, email: user.email },
         accessToken,
       });
   } catch (error) {
+    // Validation error
     if (error.name === "ValidationError") {
       return res.status(400).json({
-        status: 400,
-        message: error.inner[0]?.message || "Validation failed.",
-        error: {
-          code: "VALIDATION_ERROR",
-          details: "Invalid registration input.",
-        },
+        message: error.inner[0]?.message || "Input login data is invalid.",
+        details: "provided login data is invalid"
       });
     }
 
-    console.error("Error occurred:", {
-      message: error.message,
-      stack: error.stack,
-      timestamp: new Date().toISOString(),
-    });
-
-    return res.status(500).json({
-      status: 500,
-      message: "An unexpected error occurred. Please try again later.",
-      error: { code: "SERVER_ERROR", details: "Internal server error." },
-    });
+    throw error;
   }
 };
 
+
+// Logout user //
+
 const logoutUser = async (req, res) => {
-  try {
-    await User.findOneAndUpdate(
-      { email: req.user.email },
-      { $unset: { refreshToken: 1 } },
-      { new: true }
-    );
 
-    const REFRESH_TOKEN_OPTIONS_FOR_DELETION = { ...REFRESH_TOKEN_OPTIONS };
-    delete REFRESH_TOKEN_OPTIONS_FOR_DELETION.maxAge;
+  await User.findOneAndUpdate(
+    { email: req.user.email },
+    { $unset: { refreshToken: 1 } },
+    { new: true }
+  );
 
-    res.clearCookie("refreshToken", REFRESH_TOKEN_OPTIONS_FOR_DELETION);
+  const REFRESH_TOKEN_OPTIONS_FOR_DELETION = { ...REFRESH_TOKEN_OPTIONS };
+  delete REFRESH_TOKEN_OPTIONS_FOR_DELETION.maxAge;
 
-    return res.status(200).json({
-      status: 200,
-      message: "Logged out successfully.",
-    });
-  } catch (error) {
-    console.error("Error occurred:", {
-      message: error.message,
-      stack: error.stack,
-      timestamp: new Date().toISOString(),
-    });
-    return res.status(500).json({
-      status: 500,
-      message: "An unexpected error occurred. Please try again later.",
-      error: { code: "SERVER_ERROR", details: "Internal server error." },
-    });
-  }
+  // Remove the maxAge property since its depreacted from clearCookie.
+  //
+  // express deprecated res.clearCookie: Passing "options.maxAge" is deprecated.
+  // In v5.0.0 of Express, this option will be ignored, as res.clearCookie will automatically set cookies to expire immediately.
+  //
+  res.clearCookie("refreshToken", REFRESH_TOKEN_OPTIONS_FOR_DELETION);
+
+  return res.status(200).json({
+    message: "Logged out.",
+  });
 };
 
 const refreshUser = async (req, res) => {
@@ -250,12 +188,8 @@ const refreshUser = async (req, res) => {
 
     if (!incomingRefreshToken) {
       return res.status(401).json({
-        status: 401,
-        message: "No refresh token provided.",
-        error: {
-          code: "NO_REF_TOKEN",
-          details: "Missing refresh token in request.",
-        },
+        message: "Please login first.",
+        details: "no refresh token is found in request cookies",
       });
     }
 
@@ -267,12 +201,8 @@ const refreshUser = async (req, res) => {
 
     if (!user || user.refreshToken !== incomingRefreshToken) {
       return res.status(401).json({
-        status: 401,
         message: "Invalid refresh token.",
-        error: {
-          code: "INVALID_REFRESH_TOKEN",
-          details: "Refresh token does not match records.",
-        },
+        details: "no user found for the provided refresh token",
       });
     }
 
@@ -284,22 +214,30 @@ const refreshUser = async (req, res) => {
     );
 
     return res.status(200).json({
-      status: 200,
-      message: "Access token refreshed successfully.",
+      message: "Refreshed successfully.",
       accessToken,
     });
   } catch (error) {
-    console.error("Error occurred:", {
-      message: error.message,
-      stack: error.stack,
-      timestamp: new Date().toISOString(),
-    });
 
-    return res.status(500).json({
-      status: 500,
-      message: "An unexpected error occurred. Please try again later.",
-      error: { code: "SERVER_ERROR", details: "Internal server error." },
-    });
+    // Token errors
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({
+        message: "Session expired, Please login.",
+        details: "refresh token has been expired"
+      });
+    } else if (error.name === "JsonWebTokenError") {
+      return res.status(401).json({
+        message: "Invalid credentials, Please login.",
+        details: "invalid refresh token is provided"
+      });
+    } else if (error.name === "NotBeforeError") {
+      return res.status(401).json({
+        message: "The session is not active yetv Please wait.",
+        details: "refresh token is not active yet."
+      });
+    }
+
+    throw error;
   }
 };
 

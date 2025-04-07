@@ -24,6 +24,20 @@ app.use(urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(routes);
 
+// Error handler
+app.use((err, req, res, next) => {
+    console.error("[error-handler]:", {
+        message: err.message,
+        stack: err.stack,
+        timestamp: new Date().toISOString(),
+    });
+    res.status(500).json({ 
+        message: 'Something went wrong.',
+        details: "Internal server error has been occured."
+     });
+});
+
+
 // Test route
 app.get('/', (req, res) => {
     res.send("Server Online!");

@@ -7,12 +7,8 @@ const verifyJWTUser = async (req, res, next) => {
 
         if (!token) {
             return res.status(401).json({
-                status: 401,
-                message: "Unauthorized request blocked.",
-                error: {
-                    code: "NO_ACC_TOKEN",
-                    details: "Missing authentication token."
-                }
+                message: "Please login first.",
+                details: "no access token is provided with request headers"
             });
         }
 
@@ -21,12 +17,8 @@ const verifyJWTUser = async (req, res, next) => {
 
         if (!user) {
             return res.status(401).json({
-                status: 401,
                 message: "User not found.",
-                error: {
-                    code: "ACC_USER_NOT_FOUND",
-                    details: "The token does not match any registered user."
-                }
+                details: "no user found for the provided access token"
             });
         }
 
@@ -34,39 +26,26 @@ const verifyJWTUser = async (req, res, next) => {
         next();
 
     } catch (error) {
+
+        // Token errors
         if (error.name === "TokenExpiredError") {
             return res.status(401).json({
-                status: 401,
-                message: "Session expired, please login.",
-                error: {
-                    code: "ACC_TOKEN_EXPIRED",
-                    details: "Your authentication token has expired."
-                }
+                message: "Please refresh credentials.",
+                details: "the access token has beed expired, refresh required"
             });
-        } else if (error.name === "JsonWebTokenError" || error.name === "NotBeforeError") {
+        } else if (error.name === "JsonWebTokenError") {
             return res.status(401).json({
-                status: 401,
-                message: "Unauthorized request blocked.",
-                error: {
-                    code: "INVALID_ACC_TOKEN",
-                    details: "The provided token is invalid or not active yet."
-                }
+                message: "Please refresh credentials.",
+                details: "invalid access token provided, refresh required"
+            });
+        } else if (error.name === "NotBeforeError") {
+            return res.status(401).json({
+                message: "Please wait.",
+                details: "access token is not active yet"
             });
         }
 
-        console.error("Error occurred:", {
-            message: error.message,
-            stack: error.stack,
-            timestamp: new Date().toISOString()
-        });
-        return res.status(500).json({
-            status: 500,
-            message: "An unexpected error occurred. Please try again later.",
-            error: {
-                code: "SERVER_ERROR",
-                details: "An internal server error occurred while verifying the token."
-            }
-        });
+        throw error;
     }
 };
 

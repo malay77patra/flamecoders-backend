@@ -5,7 +5,6 @@ const loginAdmin = (req, res) => {
     // by middlewares
 
     return res.status(200).json({
-        status: 200,
         message: "Admin access granted.",
         isAdmin: true
     });

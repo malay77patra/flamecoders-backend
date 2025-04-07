@@ -1,4 +1,5 @@
 
+
 function getJwtFormat(ms) {
     if (ms < 1000) throw new Error("Expiration time must be at least 1 second.");
     if (ms > 30 * 24 * 60 * 60 * 1000) throw new Error("Expiration time cannot exceed 30 days.");
@@ -12,5 +13,6 @@ function getJwtFormat(ms) {
 }
 
 
-
-module.exports = { getJwtFormat };
+module.exports = {
+    getJwtFormat,
+};
