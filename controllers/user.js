@@ -144,6 +144,7 @@ const loginUser = async (req, res) => {
         accessToken,
       });
   } catch (error) {
+
     // Validation error
     if (error.name === "ValidationError") {
       return res.status(400).json({
@@ -182,12 +183,15 @@ const logoutUser = async (req, res) => {
   });
 };
 
+// Refresh user
+
 const refreshUser = async (req, res) => {
   try {
     const incomingRefreshToken = req.cookies.refreshToken;
 
     if (!incomingRefreshToken) {
       return res.status(401).json({
+        redirect: true,
         message: "Please login first.",
         details: "no refresh token is found in request cookies",
       });
@@ -201,8 +205,9 @@ const refreshUser = async (req, res) => {
 
     if (!user || user.refreshToken !== incomingRefreshToken) {
       return res.status(401).json({
+        redirect: true,
         message: "Invalid refresh token.",
-        details: "no user found for the provided refresh token",
+        details: "user refresh token doesnt match any user",
       });
     }
 
@@ -222,16 +227,19 @@ const refreshUser = async (req, res) => {
     // Token errors
     if (error.name === "TokenExpiredError") {
       return res.status(401).json({
+        redirect: true,
         message: "Session expired, Please login.",
         details: "refresh token has been expired"
       });
     } else if (error.name === "JsonWebTokenError") {
       return res.status(401).json({
+        redirect: true,
         message: "Invalid credentials, Please login.",
         details: "invalid refresh token is provided"
       });
     } else if (error.name === "NotBeforeError") {
       return res.status(401).json({
+        redirect: true,
         message: "The session is not active yetv Please wait.",
         details: "refresh token is not active yet."
       });

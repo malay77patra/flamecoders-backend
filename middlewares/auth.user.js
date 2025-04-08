@@ -7,6 +7,7 @@ const verifyJWTUser = async (req, res, next) => {
 
         if (!token) {
             return res.status(401).json({
+                refresh: true,
                 message: "Please login first.",
                 details: "no access token is provided with request headers"
             });
@@ -30,16 +31,19 @@ const verifyJWTUser = async (req, res, next) => {
         // Token errors
         if (error.name === "TokenExpiredError") {
             return res.status(401).json({
+                refresh: true,
                 message: "Please refresh credentials.",
                 details: "the access token has beed expired, refresh required"
             });
         } else if (error.name === "JsonWebTokenError") {
             return res.status(401).json({
+                refresh: true,
                 message: "Please refresh credentials.",
                 details: "invalid access token provided, refresh required"
             });
         } else if (error.name === "NotBeforeError") {
             return res.status(401).json({
+                refresh: true,
                 message: "Please wait.",
                 details: "access token is not active yet"
             });
