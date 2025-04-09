@@ -30,13 +30,13 @@ const EMAIL = {
         .logo {
             font-size: 24px;
             font-weight: bold;
-            color: #00d8a8;
+            color: #000;
             margin-bottom: 20px;
         }
 
         .button {
             display: inline-block;
-            background-color: #00d8a8;
+            background-color: #000;
             color: #ffffff;
             padding: 12px 24px;
             border-radius: 5px;
