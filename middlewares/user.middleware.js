@@ -53,4 +53,7 @@ const verifyJWTUser = async (req, res, next) => {
     }
 };
 
-module.exports = { verifyJWTUser };
+
+module.exports = {
+    verifyJWTUser
+};

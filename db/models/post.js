@@ -3,6 +3,12 @@ const { Schema } = mongoose;
 
 const postSchema = new Schema(
     {
+        title: {
+            type: String,
+            trim: true,
+            maxlength: 70,
+            default: ""
+        },
         metadata: {
             type: Schema.Types.Mixed,
             required: true,

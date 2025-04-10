@@ -22,9 +22,28 @@ const getPost = async (req, res) => {
 
     return res.status(200).json({
         message: "Post fetched successfully",
-        metadata: post.metadata
+        id: post._id,
+        ...post.toObject(),
     });
 };
+
+const getAllPosts = async (req, res) => {
+    const { page, limit } = req.query;
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+
+    const skip = (pageNum - 1) * limitNum;
+
+    const posts = await Post.find({ published: true }).sort({ createdAt: -1 }).skip(skip).limit(limitNum);
+    return res.status(200).json({
+        message: "Posts fetched successfully",
+        posts: posts.map(post => ({
+            id: post._id,
+            ...post.toObject(),
+        })),
+    });
+
+}
 
 
 
@@ -35,16 +54,6 @@ const getPost = async (req, res) => {
 // by middlewares
 
 // New post
-
-const createNewPostAdmin = async (req, res) => {
-
-    const newPost = await Post.create({});
-
-    return res.status(201).json({
-        message: "Post created.",
-        id: newPost._id,
-    });
-}
 
 const getPostAdmin = async (req, res) => {
     const { id } = req.params;
@@ -67,10 +76,37 @@ const getPostAdmin = async (req, res) => {
 
     return res.status(200).json({
         message: "Post fetched successfully",
-        metadata: post.metadata,
-        published: post.published
+        id: post._id,
+        ...post.toObject(),
     });
-};
+}
+
+const getAllDraftsAdmin = async (req, res) => {
+    const { page, limit } = req.query;
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+
+    const skip = (pageNum - 1) * limitNum;
+
+    const posts = await Post.find({ published: false }).sort({ createdAt: -1 }).skip(skip).limit(limitNum);
+    return res.status(200).json({
+        message: "Posts fetched successfully",
+        drafts: posts.map(post => ({
+            id: post._id,
+            ...post.toObject(),
+        })),
+    });
+}
+
+const createNewPostAdmin = async (req, res) => {
+
+    const newPost = await Post.create({});
+
+    return res.status(201).json({
+        message: "Post created.",
+        id: newPost._id,
+    });
+}
 
 const publishPostAdmin = async (req, res) => {
     const { id, published } = req.body;
@@ -84,6 +120,13 @@ const publishPostAdmin = async (req, res) => {
 
     const post = await Post.findOne({ _id: id });
 
+    if (published && !post.title) {
+        return res.status(400).json({
+            message: "Post must have a title before publishing",
+            details: "no title is found in the post"
+        });
+    }
+
     if (!post) {
         return res.status(404).json({
             message: "Post not found",
@@ -96,13 +139,20 @@ const publishPostAdmin = async (req, res) => {
 
     return res.status(200).json({
         message: post.published ? "Post published" : "Post unpublished",
-        metadata: post.metadata,
-        published: post.published,
+        id: post._id,
+        ...post.toObject(),
     });
 }
 
 const updatePostAdmin = async (req, res) => {
-    const { id, metadata } = req.body;
+    const { id, title, metadata } = req.body;
+
+    if (!title || !metadata) {
+        return res.status(400).json({
+            message: "Invalid post data",
+            details: "no title or metadata is provided with the request"
+        });
+    }
 
     if (!id) {
         return res.status(400).json({
@@ -120,12 +170,14 @@ const updatePostAdmin = async (req, res) => {
         });
     }
 
+    post.title = title.trim();
     post.metadata = metadata;
     await post.save();
 
     res.status(200).json({
         message: "Saved",
-        metadata: post.metadata,
+        id: post._id,
+        ...post.toObject(),
     });
 }
 
@@ -160,6 +212,8 @@ module.exports = {
     createNewPostAdmin,
     getPost,
     getPostAdmin,
+    getAllPosts,
+    getAllDraftsAdmin,
     publishPostAdmin,
     updatePostAdmin,
     deletePostAdmin,
