@@ -1,7 +1,7 @@
 const { Router } = require("express");
 const { loginAdmin } = require("@controllers/admin");
-const { verifyJWTAdmin } = require("@middlewares/auth.admin");
-const { verifyJWTUser } = require("@middlewares/auth.user");
+const { verifyJWTAdmin } = require("@middlewares/admin.middleware");
+const { verifyJWTUser } = require("@middlewares/user.middleware");
 
 const router = Router();
 
@@ -9,8 +9,7 @@ const router = Router();
 
 
 // ---------------------- Protected Routes ----------------------
-router.use(verifyJWTUser, verifyJWTAdmin);
-router.route("/login").post(loginAdmin);
+router.route("/login").post(verifyJWTUser, verifyJWTAdmin, loginAdmin);
 
 
 module.exports = router;
