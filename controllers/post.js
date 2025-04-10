@@ -127,7 +127,32 @@ const updatePostAdmin = async (req, res) => {
         message: "Saved",
         metadata: post.metadata,
     });
+}
 
+const deletePostAdmin = async (req, res) => {
+    const { id } = req.body;
+
+    if (!id) {
+        return res.status(400).json({
+            message: "Invalid post link",
+            details: "no post id is provided with the request"
+        });
+    }
+
+    const post = await Post.findOne({ _id: id });
+
+    if (!post) {
+        return res.status(404).json({
+            message: "Post not found",
+            details: "no post found with the given id"
+        });
+    }
+
+    await post.deleteOne();
+
+    return res.status(200).json({
+        message: "Post deleted",
+    });
 }
 
 
@@ -137,4 +162,5 @@ module.exports = {
     getPostAdmin,
     publishPostAdmin,
     updatePostAdmin,
+    deletePostAdmin,
 };
