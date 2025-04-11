@@ -26,6 +26,6 @@ router.route("/get-admin/:id").get(verifyJWTUser, verifyJWTAdmin, getPostAdmin);
 router.route("/publish").post(verifyJWTUser, verifyJWTAdmin, publishPostAdmin);
 router.route("/update").post(verifyJWTUser, verifyJWTAdmin, updatePostAdmin);
 router.route("/delete").post(verifyJWTUser, verifyJWTAdmin, deletePostAdmin);
-router.route("/drafts/:page/:limit").get(verifyJWTUser, verifyJWTAdmin, getAllDraftsAdmin);
+router.route("/drafts").get(verifyJWTUser, verifyJWTAdmin, getAllDraftsAdmin);
 
 module.exports = router;

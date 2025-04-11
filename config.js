@@ -25,6 +25,8 @@ const REFRESH_TOKEN_OPTIONS = {
     maxAge: MAX_REFRESH_TOKEN_AGE
 }
 
+MAX_IMG_UPLOAD_SIEZE = 5 * 1024 * 1024; // 5 MB
+ALLOWED_IMG_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 
 module.exports = {
@@ -36,4 +38,6 @@ module.exports = {
     SMALL_COOL_DOWN,
     BIG_COOL_DOWN,
     MAX_REGISTRATION_TRIES,
+    MAX_IMG_UPLOAD_SIEZE,
+    ALLOWED_IMG_TYPES,
 };

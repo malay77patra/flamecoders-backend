@@ -82,15 +82,9 @@ const getPostAdmin = async (req, res) => {
 }
 
 const getAllDraftsAdmin = async (req, res) => {
-    const { page, limit } = req.query;
-    const pageNum = parseInt(page) || 1;
-    const limitNum = parseInt(limit) || 10;
-
-    const skip = (pageNum - 1) * limitNum;
-
-    const posts = await Post.find({ published: false }).sort({ createdAt: -1 }).skip(skip).limit(limitNum);
+    const posts = await Post.find({ published: false }).sort({ createdAt: -1 });
     return res.status(200).json({
-        message: "Posts fetched successfully",
+        message: "Drafts fetched successfully",
         drafts: posts.map(post => ({
             id: post._id,
             ...post.toObject(),
