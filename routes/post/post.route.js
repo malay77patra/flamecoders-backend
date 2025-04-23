@@ -1,8 +1,8 @@
 const { Router } = require("express");
-const { verifyJWTAdmin } = require("@middlewares/admin.middleware");
+const { verifyJWTAdmin } = require("@/middlewares/admin.middleware");
 const {
     verifyJWTUser
-} = require("@middlewares/user.middleware");
+} = require("@/middlewares/user.middleware");
 const {
     createNewPostAdmin,
     getPost,
@@ -12,7 +12,7 @@ const {
     deletePostAdmin,
     getAllPosts,
     getAllDraftsAdmin,
-} = require("@controllers/post")
+} = require("@/controllers/post")
 const router = Router();
 
 // ---------------------- Public Routes ----------------------

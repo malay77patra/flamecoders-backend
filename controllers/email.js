@@ -1,7 +1,7 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
-const Pending = require("@models/pending");
-const User = require("@models/user");
+const Pending = require("@/db/models/pending");
+const User = require("@/db/models/user");
 
 
 const verifyMagicLink = async (req, res) => {

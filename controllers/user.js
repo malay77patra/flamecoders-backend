@@ -1,18 +1,18 @@
 require("dotenv").config();
-const User = require("@models/user");
-const Pending = require("@models/pending");
+const User = require("@/db/models/user");
+const Pending = require("@/db/models/pending");
 const jwt = require("jsonwebtoken");
-const { getJwtFormat } = require("@utils/helpers");
-const { sendEmail } = require("@utils/smtp");
-const { loginSchema, registerSchema } = require("@utils/validations");
+const { getJwtFormat } = require("@/utils/helpers");
+const { sendEmail } = require("@/utils/smtp");
+const { loginSchema, registerSchema } = require("@/utils/validations");
 const {
   SMALL_COOL_DOWN,
   BIG_COOL_DOWN,
   MAX_MAGIC_LINK_AGE,
   MAX_REGISTRATION_TRIES,
   REFRESH_TOKEN_OPTIONS,
-} = require("@config");
-const { EMAIL } = require("@utils/template");
+} = require("@/config");
+const { EMAIL } = require("@/utils/template");
 
 
 
@@ -109,6 +109,7 @@ const loginUser = async (req, res) => {
     await loginSchema.validate({ email, password }, { abortEarly: false });
 
     const user = await User.findOne({ email });
+    console.log("user:", user)
 
     if (!user) {
       return res.status(404).json({

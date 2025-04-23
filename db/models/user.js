@@ -2,12 +2,16 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { MAX_ACCESS_TOKEN_AGE, MAX_REFRESH_TOKEN_AGE } = require("@config");
-const { getJwtFormat } = require("@utils/helpers");
+const { MAX_ACCESS_TOKEN_AGE, MAX_REFRESH_TOKEN_AGE } = require("@/config");
+const { getJwtFormat } = require("@/utils/helpers");
 
 
 const userSchema = new Schema(
     {
+        role: {
+            type: String,
+            default: "user"
+        },
         name: {
             type: String,
             required: true,

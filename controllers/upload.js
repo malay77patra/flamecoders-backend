@@ -1,4 +1,4 @@
-const { upload, imagekit } = require("@utils/imagekit")
+const { upload, imagekit } = require("@/utils/imagekit")
 
 
 const uploadEditorImage = (req, res) => {

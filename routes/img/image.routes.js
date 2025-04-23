@@ -1,7 +1,7 @@
 const { Router } = require("express");
-const { verifyJWTAdmin } = require("@middlewares/admin.middleware");
-const { verifyJWTUser } = require("@middlewares/user.middleware");
-const { uploadEditorImage } = require("@controllers/upload")
+const { verifyJWTAdmin } = require("@/middlewares/admin.middleware");
+const { verifyJWTUser } = require("@/middlewares/user.middleware");
+const { uploadEditorImage } = require("@/controllers/upload")
 const router = Router();
 
 // ---------------------- Public Routes ----------------------

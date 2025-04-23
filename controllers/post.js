@@ -1,4 +1,4 @@
-const Post = require("@models/post");
+const Post = require("@/db/models/post");
 
 
 const getPost = async (req, res) => {

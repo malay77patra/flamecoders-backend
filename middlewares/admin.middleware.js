@@ -1,4 +1,3 @@
-const Admin = require("@models/admin");
 
 
 const verifyJWTAdmin = async (req, res, next) => {
@@ -8,16 +7,14 @@ const verifyJWTAdmin = async (req, res, next) => {
     //
 
     const user = req.user;
-    const admin = await Admin.findOne({ email: user.email });
 
-    if (!admin) {
+    if (!user || admin.role !== "admin") {
         return res.status(401).json({
             message: "Not an admin.",
             details: "user is not an admin"
         });
     }
 
-    req.user.isAdmin = true;
     next();
 };
 

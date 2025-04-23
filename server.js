@@ -4,9 +4,9 @@ const express = require("express");
 const { urlencoded } = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const connectDB = require("@db/connect");
-const setupSuperAdmin = require("@admin/setup");
-const routes = require("@routes");
+const connectDB = require("@/db/connect");
+const setupAdmin = require("@/scripts/setup");
+const routes = require("@/routes");
 
 // Definations
 const isProduction = process.argv.includes('--env=production');
@@ -24,19 +24,6 @@ app.use(urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(routes);
 
-// Error handler
-app.use((err, req, res, next) => {
-    console.error("[error-handler]:", {
-        message: err.message,
-        stack: err.stack,
-        timestamp: new Date().toISOString(),
-    });
-    res.status(500).json({ 
-        message: 'Something went wrong.',
-        details: "Internal server error has been occured."
-     });
-});
-
 
 // Test route
 app.get('/', (req, res) => {
@@ -45,9 +32,9 @@ app.get('/', (req, res) => {
 
 
 
-// Connecting to MongoDB, then start the server
+// Connect to MongoDB, then start the server
 connectDB()
-    .then(() => setupSuperAdmin())
+    .then(() => setupAdmin())
     .then(() => {
         app.listen(PORT, () => {
             if (isProduction) {

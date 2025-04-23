@@ -4,8 +4,7 @@
     "build": "echo 'Building... This may take few years. Just kidding •ᴗ• all done! 🚀'",
     "dev": "nodemon server.js",
     "start": "node server.js --env=production",
-    "tenv": "node scripts/tenv.js",
-    "test": "jest"
+    "tenv": "node scripts/tenv.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -28,13 +27,6 @@
     "supertest": "^7.1.0"
   },
   "_moduleAliases": {
-    "@admin": "./admin",
-    "@db": "./db",
-    "@models": "./db/models",
-    "@routes": "./routes",
-    "@controllers": "./controllers",
-    "@middlewares": "./middlewares",
-    "@config": "./config.js",
-    "@utils": "./utils"
+    "@": "."
   }
 }

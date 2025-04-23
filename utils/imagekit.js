@@ -1,7 +1,7 @@
 require("dotenv").config();
 const ImageKit = require('imagekit')
 const multer = require('multer')
-const { MAX_IMG_UPLOAD_SIEZE, ALLOWED_IMG_TYPES } = require("@config")
+const { MAX_IMG_UPLOAD_SIEZE, ALLOWED_IMG_TYPES } = require("@/config")
 
 
 const imagekit = new ImageKit({

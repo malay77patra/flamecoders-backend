@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const { verifyMagicLink } = require("@controllers/email");
+const { verifyMagicLink } = require("@/controllers/email");
 
 const router = Router();
 

@@ -1,7 +1,7 @@
 const { Router } = require("express");
-const { loginAdmin } = require("@controllers/admin");
-const { verifyJWTAdmin } = require("@middlewares/admin.middleware");
-const { verifyJWTUser } = require("@middlewares/user.middleware");
+const { loginAdmin } = require("@/controllers/admin");
+const { verifyJWTAdmin } = require("@/middlewares/admin.middleware");
+const { verifyJWTUser } = require("@/middlewares/user.middleware");
 
 const router = Router();
 

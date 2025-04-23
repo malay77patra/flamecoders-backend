@@ -1,6 +1,6 @@
 const { Router } = require("express");
-const { registerUser, loginUser, logoutUser, refreshUser } = require("@controllers/user");
-const { verifyJWTUser } = require("@middlewares/user.middleware");
+const { registerUser, loginUser, logoutUser, refreshUser } = require("@/controllers/user");
+const { verifyJWTUser } = require("@/middlewares/user.middleware");
 
 const router = Router();
 
