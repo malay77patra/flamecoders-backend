@@ -1,9 +1,9 @@
 const fs = require("fs");
 const path = require("path");
+global.__root = process.cwd();
 
-const envTemplate = ".env.template"
-const envPath = path.join(__dirname, "..", ".env");
-const exampleEnvPath = path.join(__dirname, "..", envTemplate);
+const envPath = path.join(__root, ".env");
+const exampleEnvPath = path.join(__root, ".env.template");
 
 // ANSI color codes
 const RESET = "\x1b[0m";
@@ -33,7 +33,7 @@ if (!fs.existsSync(envPath)) {
     process.exit(1);
 }
 
-console.log(GREEN + `✅ .env file detected, Generating ${envTemplate} template...` + RESET);
+console.log(GREEN + `✅ .env file detected, Generating .env.template ...` + RESET);
 
 try {
     const envContent = fs.readFileSync(envPath, "utf-8");
@@ -49,8 +49,8 @@ try {
         .join("\n");
 
     fs.writeFileSync(exampleEnvPath, exampleEnvContent, "utf-8");
-    console.log(GREEN + BOLD + `🎉 ${envTemplate} has been successfully generated!` + RESET);
+    console.log(GREEN + BOLD + `🎉 .env.template has been successfully generated!` + RESET);
 } catch (error) {
-    console.error(RED + BOLD + `❌ Error generating ${envTemplate}:` + RESET, error.message);
+    console.error(RED + BOLD + `❌ Error generating .env.template:` + RESET, error.message);
     process.exit(1);
 }

@@ -18,6 +18,7 @@ const PORT = process.env.PORT || 8000;
 // Settings
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
+global.__root = process.cwd();
 
 // Using middlewares
 app.use(cors({

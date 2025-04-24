@@ -12,8 +12,8 @@ const {
   MAX_REGISTRATION_TRIES,
   REFRESH_TOKEN_OPTIONS,
 } = require("@/config");
-const { EMAIL } = require("@/utils/template");
-
+const ejs = require('ejs');
+const path = require("path");
 
 
 //  Register user //
@@ -35,11 +35,13 @@ const registerUser = async (req, res) => {
       );
 
       const magicLink = `${req.protocol}://${req.get('host')}/api/magic/verify?token=${magicToken}`;
-      const subject = "Magic Link for Registration";
-      const text = EMAIL.verify.text.replace("{{link}}", magicLink);
-      const html = EMAIL.verify.html.replace("{{link}}", magicLink);
+      const subject = "Verify Your Email.";
 
-      await sendEmail(email, subject, text, html);
+      const html = await ejs.renderFile(path.join(__root, "views", "emails", "verification-email.ejs"), {
+        magicLink
+      });
+
+      await sendEmail(email, subject, html);
     };
 
     const existingUser = await User.findOne({ email });
