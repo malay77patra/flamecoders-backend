@@ -1,11 +1,11 @@
 const { Router } = require("express");
-const { verifyMagicLink } = require("@/controllers/email");
+const { verifyMagicLink } = require("@/controllers/magic/auth.controller");
 
 const router = Router();
 
 // ---------------------- Public Routes ----------------------
 
-router.route("/verify").post(verifyMagicLink);
+router.route("/verify").get(verifyMagicLink);
 
 // ---------------------- Protected Routes ----------------------
 

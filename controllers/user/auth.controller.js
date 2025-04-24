@@ -34,7 +34,7 @@ const registerUser = async (req, res) => {
         { expiresIn: getJwtFormat(MAX_MAGIC_LINK_AGE) }
       );
 
-      const magicLink = `${process.env.CLIENT_URL}/verify?token=${magicToken}`;
+      const magicLink = `${req.protocol}://${req.get('host')}/verify?token=${magicToken}`;
       const subject = "Magic Link for Registration";
       const text = EMAIL.verify.text.replace("{{link}}", magicLink);
       const html = EMAIL.verify.html.replace("{{link}}", magicLink);
