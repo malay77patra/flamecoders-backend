@@ -37,7 +37,7 @@ const verifyMagicLink = async (req, res) => {
         await Pending.deleteOne({ email })
 
         return res.render(path.join("pages", "verify-email"), {
-            success: true
+            error: ""
         })
 
     } catch (error) {

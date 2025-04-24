@@ -6,30 +6,23 @@
     <title>Error</title>
     <style>
         body {
+            height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-family: sans-serif;
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 2rem;
         }
 
-        .container {
-            background-color: #f5c6cb;
-            padding: 1.5rem;
-            border-radius: 8px;
-            max-width: 600px;
-            margin: auto;
-        }
-
-        h1 {
-            margin-top: 0;
+        .container p {
+            color: red;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>Error</h1>
-        <p><strong><%= message %></strong></p>
+        <h1>500 | INTERNAL SERVER ERROR</h1>
+        <p><%= message %></p>
     </div>
 </body>
 
