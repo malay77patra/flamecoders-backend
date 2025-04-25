@@ -36,7 +36,16 @@ const registerSchema = object({
             "Password must contain at least one uppercase letter, one number, and one special character"),
 }).strict().required();
 
+const updateSchema = object({
+    name: string()
+        .trim()
+        .min(3, "Name must be at least 3 characters")
+        .max(50, "Name must be less than 50 characters")
+        .matches(/^[A-Za-z\s'-]+$/, "Name can only contain letters, spaces, apostrophes, and hyphens"),
+}).strict().required();
+
 module.exports = {
+    updateSchema,
     loginSchema,
     registerSchema
 };
