@@ -1,4 +1,4 @@
-const { object, string } = require("yup");
+const { object, string, boolean } = require("yup");
 
 const loginSchema = object({
     email: string()
@@ -44,8 +44,18 @@ const updateSchema = object({
         .matches(/^[A-Za-z\s'-]+$/, "Name can only contain letters, spaces, apostrophes, and hyphens"),
 }).strict().required();
 
+const postSchema = object({
+    title: string()
+        .trim()
+        .max(75, "Title must be less than 75 characters"),
+    metadata: object()
+        .default({}),
+    published: boolean()
+}).strict().required();
+
 module.exports = {
     updateSchema,
     loginSchema,
-    registerSchema
+    registerSchema,
+    postSchema
 };

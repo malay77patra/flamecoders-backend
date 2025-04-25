@@ -13,7 +13,7 @@ const globalErrorHandler = (err, req, res, next) => {
     const responseMessage = err.isOperational ? err.message : 'Internal Server Error';
 
     res.status(statusCode).json({
-        error: "Something went wrong!",
+        message: "Something went wrong!",
         details: responseMessage
     });
 };
