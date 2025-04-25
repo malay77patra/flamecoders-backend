@@ -111,7 +111,6 @@ const loginUser = async (req, res) => {
     await loginSchema.validate({ email, password }, { abortEarly: false });
 
     const user = await User.findOne({ email });
-    console.log("user:", user)
 
     if (!user) {
       return res.status(404).json({
