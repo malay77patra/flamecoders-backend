@@ -3,7 +3,7 @@ const User = require("@/db/models/user");
 
 const verifyJWTUser = async (req, res, next) => {
     try {
-        const token = req.header("Authorization")?.replace("Bearer ", "");
+        const token = req.header("Authorization")?.replace("Bearer", "").trim();
 
         if (!token) {
             return res.status(401).json({
@@ -55,7 +55,7 @@ const verifyJWTUser = async (req, res, next) => {
 
 const verifyJWTOptionalUser = async (req, res, next) => {
     try {
-        const token = req.header("Authorization")?.replace("Bearer ", "");
+        const token = req.header("Authorization")?.replace("Bearer", "").trim();
 
         if (token) {
             const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
