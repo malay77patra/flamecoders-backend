@@ -10,7 +10,14 @@ const postSchema = new Schema(
         },
         metadata: {
             type: Schema.Types.Mixed,
-            default: {},
+            default: {
+                "type": "doc",
+                "content": [
+                    {
+                        "type": "paragraph"
+                    }
+                ]
+            },
         },
         published: {
             type: Boolean,
