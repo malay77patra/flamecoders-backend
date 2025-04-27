@@ -2,7 +2,6 @@ const Post = require("@/db/models/post");
 const mongoose = require("mongoose");
 const { postSchema } = require("@/utils/validations");
 
-
 // Create New Post
 const newPost = async (req, res) => {
     const newPost = await Post.create({
@@ -52,6 +51,35 @@ const getPost = async (req, res) => {
             details: "no post found for this id"
         });
     }
+}
+
+// Get My Posts
+const getMyPosts = async (req, res) => {
+    const page = parseInt(req.params.page) || 1;
+    const limit = parseInt(req.params.limit) || 1;
+    const skip = (page - 1) * limit;
+
+    const posts = await Post.find({ author: req.user.email })
+        .skip(skip)
+        .limit(limit);
+    const formattedPost = {
+        drafts: [],
+        posts: []
+    };
+
+    posts.forEach((post) => {
+        const postData = {
+            id: post._id,
+            preview: post.preview
+        }
+        if (post.published) {
+            formattedPost.posts.push(postData);
+        } else {
+            formattedPost.drafts.push(postData);
+        }
+    });
+
+    return res.status(200).json(formattedPost);
 }
 
 // Update post
@@ -162,4 +190,5 @@ module.exports = {
     getPost,
     updatePost,
     deletePost,
+    getMyPosts,
 }

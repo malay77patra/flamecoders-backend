@@ -12,7 +12,42 @@ function getJwtFormat(ms) {
     return `${seconds / (24 * 60 * 60)}d`;
 }
 
+function extractPreview(metadata) {
+    let previewTxt = "";
+
+    function walkContent(content) {
+        if (!content || previewTxt.length >= 100) return;
+
+        content.forEach((block) => {
+            if (previewTxt.length >= 100) return;
+
+            if (block.type === "text" && block.text) {
+                if (previewTxt.length > 0) {
+                    previewTxt += " ";
+                }
+                previewTxt += block.text;
+            }
+            if (block.content) {
+                walkContent(block.content);
+            }
+        });
+    }
+
+    walkContent(metadata.content);
+
+    previewTxt = previewTxt.replace(/\s+/g, " ").trim();
+
+    if (previewTxt.length > 100) {
+        previewTxt = previewTxt.slice(0, 97).trim() + "...";
+    }
+
+    return previewTxt;
+}
+
+
+
 
 module.exports = {
     getJwtFormat,
+    extractPreview,
 };
