@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-const { extractPreview } = require("@/utils/helpers");
 
 const postSchema = new Schema(
     {
@@ -49,9 +48,7 @@ postSchema.pre("save", function (next) {
     if (this.isModified("published") && this.published && !this.publishedAt) {
         this.publishedAt = new Date();
     }
-    if (this.isModified("metadata")) {
-        this.preview = extractPreview(this.metadata);
-    }
+ 
     next();
 });
 

@@ -55,28 +55,16 @@ const getPost = async (req, res) => {
 
 // Get My Posts
 const getMyPosts = async (req, res) => {
-    const page = parseInt(req.params.page) || 1;
-    const limit = parseInt(req.params.limit) || 1;
-    const skip = (page - 1) * limit;
+    const posts = await Post.find({ author: req.user.email });
 
-    const posts = await Post.find({ author: req.user.email })
-        .skip(skip)
-        .limit(limit);
-    const formattedPost = {
-        drafts: [],
-        posts: []
-    };
+    const formattedPost = [];
 
     posts.forEach((post) => {
-        const postData = {
+        formattedPost.push({
             id: post._id,
-            preview: post.preview
-        }
-        if (post.published) {
-            formattedPost.posts.push(postData);
-        } else {
-            formattedPost.drafts.push(postData);
-        }
+            title: post.title,
+            published: post.published
+        })
     });
 
     return res.status(200).json(formattedPost);

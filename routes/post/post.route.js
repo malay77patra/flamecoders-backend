@@ -11,7 +11,7 @@ router.route("/new").post(verifyJWTUser, newPost);
 router.route("/get/:id").get(verifyJWTOptionalUser, getPost);
 router.route("/update").post(verifyJWTUser, updatePost);
 router.route("/delete/:id").delete(verifyJWTUser, deletePost);
-router.route("/getmy/:page/:number").get(verifyJWTUser, getMyPosts);
+router.route("/posts/my").get(verifyJWTUser, getMyPosts);
 
 
 
