@@ -131,7 +131,6 @@ const updatePost = async (req, res) => {
 
         // Validation error
         if (error.name === "ValidationError") {
-            console.log("Errorrrrrrr:", error)
             return res.status(400).json({
                 message: error.inner[0]?.message || "Post login data is invalid.",
                 details: "provided post data is invalid"

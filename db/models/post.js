@@ -19,11 +19,6 @@ const postSchema = new Schema(
                 ]
             },
         },
-        preview: {
-            type: String,
-            default: "",
-            trim: true,
-        },
         published: {
             type: Boolean,
             default: false,
