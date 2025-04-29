@@ -55,6 +55,8 @@ const getPost = async (req, res) => {
 
 // Get My Posts
 const getMyPosts = async (req, res) => {
+    res.set('Cache-Control', 'no-store');
+
     const posts = await Post.find({ author: req.user.email });
 
     const formattedPost = [];
