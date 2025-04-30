@@ -72,6 +72,25 @@ const getMyPosts = async (req, res) => {
     return res.status(200).json(formattedPost);
 }
 
+// Get all Posts
+const getAllPosts = async (req, res) => {
+    res.set('Cache-Control', 'no-store');
+
+    const posts = await Post.find({ published: true });
+
+    const formattedPost = [];
+
+    posts.forEach((post) => {
+        formattedPost.push({
+            id: post._id,
+            title: post.title,
+            timestamp: post.publishedAt
+        })
+    });
+
+    return res.status(200).json(formattedPost);
+}
+
 // Update post
 const updatePost = async (req, res) => {
     try {
@@ -180,4 +199,5 @@ module.exports = {
     updatePost,
     deletePost,
     getMyPosts,
+    getAllPosts,
 }
