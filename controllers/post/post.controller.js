@@ -5,7 +5,7 @@ const { postSchema } = require("@/utils/validations");
 // Create New Post
 const newPost = async (req, res) => {
     const newPost = await Post.create({
-        author: req.user.email
+        author: req.user._id
     });
 
     return res.status(200).json({
@@ -32,15 +32,20 @@ const getPost = async (req, res) => {
         });
     }
 
-    if (post.published || (post.author === req.user.email)) {
+    const isAuthor = post.author.equals(req.user._id);
+    const isLiked = post.likes.some(likeId => likeId.equals(req.user._id));
+
+    if (post.published || isAuthor) {
         const postData = {
             title: post.title,
             metadata: post.metadata,
             published: post.published,
-            publishedAt: post.publishedAt
+            publishedAt: post.publishedAt,
+            liked: isLiked,
+            likeCount: post.likes.length
         };
 
-        if (post.author === req.user.email) {
+        if (isAuthor) {
             postData.me = true;
         }
 
@@ -51,13 +56,48 @@ const getPost = async (req, res) => {
             details: "no post found for this id"
         });
     }
+};
+
+const togglePostLike = async (req, res) => {
+    const { id } = req.body;
+    const userId = req.user._id;
+
+    if (!id || !mongoose.isValidObjectId(id)) {
+        return res.status(404).json({
+            message: "Invalid post data",
+            details: "Invalid post ID provided"
+        });
+    }
+
+    const post = await Post.findById(id);
+    if (!post) {
+        return res.status(404).json({
+            message: "Post not found.",
+            details: "No post found for this ID"
+        });
+    }
+
+    const alreadyLiked = post.likes.some(likeId => likeId.equals(userId));
+
+    if (alreadyLiked) {
+        post.likes = post.likes.filter(likeId => !likeId.equals(userId));
+    } else {
+        post.likes.push(userId);
+    }
+
+    await post.save();
+
+    return res.status(200).json({
+        liked: !alreadyLiked,
+        likeCount: post.likes.length
+    });
 }
 
 // Get My Posts
 const getMyPosts = async (req, res) => {
     res.set('Cache-Control', 'no-store');
 
-    const posts = await Post.find({ author: req.user.email });
+    const posts = await Post.find({ author: req.user._id });
 
     const formattedPost = [];
 
@@ -116,7 +156,7 @@ const updatePost = async (req, res) => {
             });
         }
 
-        if (post.author !== req.user.email) {
+        if (post.author !== req.user._id) {
             return res.status(403).json({
                 message: "Forbidden action.",
                 details: "user is not the author of requested post update"
@@ -182,7 +222,7 @@ const deletePost = async (req, res) => {
         });
     }
 
-    if (post.author !== req.user.email) {
+    if (post.author !== req.user._id) {
         return res.status(403).json({
             message: "Forbidden action.",
             details: "user is not the author of requested post update"
@@ -200,4 +240,5 @@ module.exports = {
     deletePost,
     getMyPosts,
     getAllPosts,
+    togglePostLike,
 }

@@ -19,6 +19,11 @@ const postSchema = new Schema(
                 ]
             },
         },
+        likes: {
+            type: [Schema.Types.ObjectId],
+            ref: "User",
+            default: [],
+        },
         published: {
             type: Boolean,
             default: false,
@@ -27,11 +32,10 @@ const postSchema = new Schema(
             type: Date,
         },
         author: {
-            type: String,
+            type: Schema.Types.ObjectId,
+            ref: "User",
             required: true,
-            trim: true,
-            lowercase: true,
-        },
+        }
     },
     {
         timestamps: true,
@@ -43,7 +47,7 @@ postSchema.pre("save", function (next) {
     if (this.isModified("published") && this.published && !this.publishedAt) {
         this.publishedAt = new Date();
     }
- 
+
     next();
 });
 
