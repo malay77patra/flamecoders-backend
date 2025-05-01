@@ -156,7 +156,7 @@ const updatePost = async (req, res) => {
             });
         }
 
-        if (post.author !== req.user._id) {
+        if (!post.author.equals(req.user._id)) {
             return res.status(403).json({
                 message: "Forbidden action.",
                 details: "user is not the author of requested post update"
@@ -222,7 +222,7 @@ const deletePost = async (req, res) => {
         });
     }
 
-    if (post.author !== req.user._id) {
+    if (!post.author.equals(req.user._id)) {
         return res.status(403).json({
             message: "Forbidden action.",
             details: "user is not the author of requested post update"
