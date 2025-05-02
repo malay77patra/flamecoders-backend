@@ -25,7 +25,7 @@ const REFRESH_TOKEN_OPTIONS = {
     maxAge: MAX_REFRESH_TOKEN_AGE
 }
 
-MAX_IMG_UPLOAD_SIEZE = 5 * 1024 * 1024; // 5 MB
+MAX_IMG_UPLOAD_SIEZE = 2 * 1024 * 1024; // 5 MB
 ALLOWED_IMG_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 

@@ -6,6 +6,7 @@ const router = Router();
 const userRoutes = require("./user");
 const magicRoutes = require("./magic");
 const postRoutes = require("./post");
+const multer = require('multer');
 
 // Registering Routes
 router.use("/api", userRoutes);
