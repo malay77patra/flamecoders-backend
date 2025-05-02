@@ -12,10 +12,13 @@ function getJwtFormat(ms) {
     return `${seconds / (24 * 60 * 60)}d`;
 }
 
+function getRandomAvatar() {
+    return `https://api.dicebear.com/9.x/thumbs/svg?seed=${Math.random().toString(36).substring(7)}`;
 
-
+}
 
 
 module.exports = {
     getJwtFormat,
+    getRandomAvatar,
 };

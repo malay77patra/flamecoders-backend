@@ -142,7 +142,7 @@ const loginUser = async (req, res) => {
       .cookie("refreshToken", refreshToken, REFRESH_TOKEN_OPTIONS)
       .json({
         message: "Logged in.",
-        user: { name: user.name, email: user.email },
+        user: { id: user._id, name: user.name, email: user.email, avatar: user.avatar },
         accessToken,
       });
   } catch (error) {

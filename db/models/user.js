@@ -29,6 +29,11 @@ const userSchema = new Schema(
             type: String,
             required: true,
         },
+        avatar: {
+            type: String,
+            require: true,
+            default: 'https://api.dicebear.com/9.x/thumbs/svg?seed=default'
+        },
         refreshToken: {
             type: String,
         },

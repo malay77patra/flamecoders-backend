@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const Pending = require("@/db/models/pending");
 const User = require("@/db/models/user");
 const path = require("path");
+const { getRandomAvatar } = require("@/utils/helpers");
 
 const verifyMagicLink = async (req, res) => {
     try {
@@ -16,6 +17,7 @@ const verifyMagicLink = async (req, res) => {
 
         const decodedToken = jwt.verify(token, process.env.MAGIC_SECRET)
         const { name, email, password } = decodedToken
+        const avatar = getRandomAvatar()
 
         const pending = await Pending.findOne({ email })
 
@@ -33,7 +35,7 @@ const verifyMagicLink = async (req, res) => {
             }
         }
 
-        await User.create({ name, email, password })
+        await User.create({ name, email, password, avatar })
         await Pending.deleteOne({ email })
 
         return res.render(path.join("pages", "verify-email"), {

@@ -5,7 +5,11 @@ const { postSchema } = require("@/utils/validations");
 // Create New Post
 const newPost = async (req, res) => {
     const newPost = await Post.create({
-        author: req.user._id
+        author: {
+            id: req.user._id,
+            name: req.user.name,
+            avatar: req.user.avatar
+        }
     });
 
     return res.status(200).json({
@@ -32,7 +36,7 @@ const getPost = async (req, res) => {
         });
     }
 
-    const isAuthor = post.author.equals(req.user._id);
+    const isAuthor = post.author.id.equals(req.user._id);
     const isLiked = post.likes.some(likeId => likeId.equals(req.user._id));
 
     if (post.published || isAuthor) {
@@ -97,7 +101,7 @@ const togglePostLike = async (req, res) => {
 const getMyPosts = async (req, res) => {
     res.set('Cache-Control', 'no-store');
 
-    const posts = await Post.find({ author: req.user._id });
+    const posts = await Post.find({ 'author.id': req.user._id });
 
     const formattedPost = [];
 
@@ -124,7 +128,9 @@ const getAllPosts = async (req, res) => {
         formattedPost.push({
             id: post._id,
             title: post.title,
-            timestamp: post.publishedAt
+            timestamp: post.publishedAt,
+            author: post.author,
+            likeCount: post.likes.length,
         })
     });
 
@@ -156,7 +162,7 @@ const updatePost = async (req, res) => {
             });
         }
 
-        if (!post.author.equals(req.user._id)) {
+        if (!post.author.id.equals(req.user._id)) {
             return res.status(403).json({
                 message: "Forbidden action.",
                 details: "user is not the author of requested post update"
@@ -222,7 +228,7 @@ const deletePost = async (req, res) => {
         });
     }
 
-    if (!post.author.equals(req.user._id)) {
+    if (!post.author.id.equals(req.user._id)) {
         return res.status(403).json({
             message: "Forbidden action.",
             details: "user is not the author of requested post update"
