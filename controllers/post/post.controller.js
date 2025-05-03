@@ -119,8 +119,6 @@ const getAllPosts = async (req, res) => {
     const posts = await Post.find({ published: true })
         .populate('author', 'name avatar');
 
-    console.log("1st post:", posts[0])
-
     const formattedPost = [];
 
     posts.forEach((post) => {
