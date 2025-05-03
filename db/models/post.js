@@ -1,24 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const authorSchema = new Schema({
-    id: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-    },
-    name: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    avatar: {
-        type: String,
-        require: true,
-        default: 'https://api.dicebear.com/9.x/thumbs/svg?seed=default'
-    }
-});
-
 const postSchema = new Schema(
     {
         title: {
@@ -49,7 +31,11 @@ const postSchema = new Schema(
         publishedAt: {
             type: Date,
         },
-        author: authorSchema,
+        author: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+
+        },
     },
     {
         timestamps: true,
