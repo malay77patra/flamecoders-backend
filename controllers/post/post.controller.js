@@ -24,7 +24,8 @@ const getPost = async (req, res) => {
         });
     }
 
-    const post = await Post.findById(id);
+    const post = await Post.findById(id)
+        .populate('author', 'name avatar');
     if (!post) {
         return res.status(404).json({
             message: "404 | POST NOT FOUND",
@@ -40,14 +41,11 @@ const getPost = async (req, res) => {
             title: post.title,
             metadata: post.metadata,
             published: post.published,
-            publishedAt: post.publishedAt,
             liked: isLiked,
-            likeCount: post.likes.length
+            likeCount: post.likes.length,
+            author: post.author,
+            publishedAt: post.publishedAt
         };
-
-        if (isAuthor) {
-            postData.me = true;
-        }
 
         return res.status(200).json(postData);
     } else {
@@ -187,7 +185,8 @@ const updatePost = async (req, res) => {
             return res.status(200).json({
                 title: updatedPost.title,
                 metadata: updatedPost.metadata,
-                published: updatedPost.published
+                published: updatedPost.published,
+                publishedAt: updatedPost.publishedAt
             });
         }
 

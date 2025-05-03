@@ -44,7 +44,8 @@ const postSchema = new Schema(
 
 // Updates before saving
 postSchema.pre("save", function (next) {
-    if (this.isModified("published") && this.published && !this.publishedAt) {
+    if (this.isModified("published") && this.published) {
+        console.log("publishing a post")
         this.publishedAt = new Date();
     }
 
