@@ -1,13 +1,13 @@
 const { Router } = require("express");
-const { updateUser, uploadAvtHandler } = require("@/controllers/user/update.controller");
 const { verifyJWTUser } = require("@/middlewares/user.middleware");
+const { uploadImgHandler, uploadNewImage } = require("@/controllers/image/image.controller");
 
 const router = Router();
 
 // ---------------------- Public Routes ----------------------
 
 // ---------------------- Protected Routes ----------------------
-router.route("/update").patch(verifyJWTUser, uploadAvtHandler, updateUser);
+router.route("/upload").post(verifyJWTUser, uploadImgHandler, uploadNewImage);
 
 
 

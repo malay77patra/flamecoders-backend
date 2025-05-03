@@ -1,7 +1,7 @@
 require("dotenv").config();
 const ImageKit = require('imagekit')
 const multer = require('multer')
-const { MAX_IMG_UPLOAD_SIEZE, ALLOWED_IMG_TYPES } = require("@/config")
+const { MAX_AVT_UPLOAD_SIEZE, MAX_IMG_UPLOAD_SIEZE, ALLOWED_IMG_TYPES } = require("@/config")
 
 
 const imagekit = new ImageKit({
@@ -10,7 +10,18 @@ const imagekit = new ImageKit({
     urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
 })
 
-const upload = multer({
+const uploadAvt = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: MAX_AVT_UPLOAD_SIEZE },
+    fileFilter: (req, file, cb) => {
+        const allowed = ALLOWED_IMG_TYPES
+        allowed.includes(file.mimetype)
+            ? cb(null, true)
+            : cb(new Error(`Only ${ALLOWED_IMG_TYPES.join(', ')} are allowed`))
+    }
+}).single('image')
+
+const uploadImg = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: MAX_IMG_UPLOAD_SIEZE },
     fileFilter: (req, file, cb) => {
@@ -22,4 +33,4 @@ const upload = multer({
 }).single('image')
 
 
-module.exports = { upload, imagekit };
+module.exports = { uploadAvt, uploadImg, imagekit };

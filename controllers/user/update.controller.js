@@ -1,16 +1,24 @@
 const User = require("@/db/models/user");
 const { updateSchema } = require("@/utils/validations");
-const { imagekit, upload } = require("@/utils/imagekit");
+const { imagekit, uploadAvt } = require("@/utils/imagekit");
 const { getUserAvatarFilename } = require("@/utils/helpers");
 const sharp = require('sharp');
 const multer = require('multer');
 
-const uploadImage = (req, res, next) => {
-    upload(req, res, function (err) {
+const uploadAvtHandler = (req, res, next) => {
+    uploadAvt(req, res, function (err) {
         if (err instanceof multer.MulterError) {
+
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).json({
+                    message: "Image size must be less than 1Mb",
+                    details: "image size exceeds 1b limit"
+                });
+            }
+
             return res.status(400).json({
                 message: err.message || "Invalid Image data",
-                details: "some error occured in multer image upload handler"
+                details: "some error occured in multer image uploadAvt handler"
             });
         } else if (err) {
             // using next(err) lets the global handler handle the error, but it seems like multer is (err instanceof multer.MulterError)
@@ -18,7 +26,7 @@ const uploadImage = (req, res, next) => {
             // It is a better idea to handle both type of errors together.
             return res.status(400).json({
                 message: err.message || "Something went wrong",
-                details: "some error occured in multer image upload handler"
+                details: "some error occured in multer image uploadAvt handler"
             });
         }
 
@@ -86,5 +94,5 @@ const updateUser = async (req, res) => {
 
 module.exports = {
     updateUser,
-    uploadImage,
+    uploadAvtHandler,
 }
