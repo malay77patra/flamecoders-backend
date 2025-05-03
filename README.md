@@ -1,3 +1,3 @@
 # Flamecoders
 
-Learn 10x faster with Flamecoders.
+A full-stack article posting platform built with a clean, production-grade architecture.
