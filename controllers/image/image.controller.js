@@ -41,6 +41,7 @@ const uploadNewImage = async (req, res) => {
         });
 
         return res.status(200).json({
+            id: uploadedImage.fileId,
             url: uploadedImage.url
         });
     } else {
@@ -51,7 +52,51 @@ const uploadNewImage = async (req, res) => {
     }
 }
 
+const getAllImage = async (req, res) => {
+    const uploadedImages = await imagekit.listFiles({
+        type: "file",
+        path: `uploads_${req.user._id}`,
+        sort: "DESC_CREATED"
+    })
+    const formattedImageUrls = uploadedImages.map(img => {
+        return {
+            id: img.fileId,
+            url: img.url
+        }
+    });
+
+    return res.status(200).json(formattedImageUrls);
+}
+
+const deleteImage = async (req, res) => {
+    const { imageId } = req.params;
+
+    if (!imageId) {
+        return res.status(400).json({
+            message: "Image ID is required",
+            details: "Missing imageId in request params"
+        });
+    }
+
+    try {
+        await imagekit.deleteFile(imageId);
+    } catch (error) {
+        return res.status(400).json({
+            message: error.message || "Something went wrong!",
+            details: "error occured while deleting provided imageid"
+        })
+    }
+
+    return res.status(200).json({
+        id: imageId
+    })
+
+};
+
+
 module.exports = {
     uploadNewImage,
-    uploadImgHandler
+    uploadImgHandler,
+    getAllImage,
+    deleteImage,
 };
